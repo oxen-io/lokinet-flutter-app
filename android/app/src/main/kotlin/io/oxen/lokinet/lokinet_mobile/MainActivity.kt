@@ -1,4 +1,4 @@
-package io.oxen.lokinet.lokinet_mobile
+package io.oxen.lokinet
 
 import io.flutter.embedding.android.FlutterActivity
 
