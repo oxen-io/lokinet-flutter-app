@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Lokinet App',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -21,13 +21,13 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.teal,
         // This makes the visual density adapt to the platform that you run
         // the app on. For desktop platforms, the controls will be smaller and
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Lokinet'),
     );
   }
 }
@@ -52,20 +52,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-
-  Future<void> _incrementCounter() async {
-    final result = await LokinetLib.prepareConnection();
-    print(result);
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-
-      _counter++;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,32 +88,30 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+              'Would be pretty Cool if you would press a Button',
             ),
             TextButton(
-              child: Text('Bootstrap'),
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: Text('Bootstrap'),
+              ),
               onPressed: () async {
                 await LokinetLib.bootstrapLokinet();
               },
             ),
             Divider(),
             TextButton(
-              child: Text('Connect'),
-              onPressed: () {
-                LokinetLib.connectToLokinet();
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: Text('Connect'),
+              ),
+              onPressed: () async {
+                final result = await LokinetLib.prepareConnection();
+                if (result) LokinetLib.connectToLokinet();
               },
             )
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
