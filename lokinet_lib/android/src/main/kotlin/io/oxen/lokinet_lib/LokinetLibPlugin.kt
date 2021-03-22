@@ -69,12 +69,18 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     return
                 }
 
-                activityBinding.activity.applicationContext.startService(
-                    Intent(
-                        activityBinding.activity.applicationContext,
-                        LokinetDaemon::class.java
-                    )
-                )
+                val lokinetIntent = Intent(activityBinding.activity.applicationContext, LokinetDaemon::class.java)
+                lokinetIntent.action = LokinetDaemon.ACTION_CONNECT
+
+                activityBinding.activity.applicationContext.startService(lokinetIntent)
+
+                result.success(true);
+            }
+            "disconnect" -> {
+                val lokinetIntent = Intent(activityBinding.activity.applicationContext, LokinetDaemon::class.java)
+                lokinetIntent.action = LokinetDaemon.ACTION_DISCONNECT
+
+                activityBinding.activity.applicationContext.startService(lokinetIntent)
 
                 result.success(true);
             }

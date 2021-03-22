@@ -31,4 +31,9 @@ class LokinetLib {
     final bool connect = await _channel.invokeMethod('connect');
     return connect;
   }
+
+  static Future<bool> disconnectFromLokinet() async {
+    final bool disconnect = await _channel.invokeMethod('disconnect');
+    return disconnect;
+  }
 }

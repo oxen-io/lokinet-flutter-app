@@ -109,6 +109,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 final result = await LokinetLib.prepareConnection();
                 if (result) LokinetLib.connectToLokinet();
               },
+            ),
+            Divider(),
+            TextButton(
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: Text('Disconnect'),
+              ),
+              onPressed: () async {
+                LokinetLib.disconnectFromLokinet();
+              },
             )
           ],
         ),
