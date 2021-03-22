@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lokinet_lib/lokinet_lib.dart';
 
 void main() {
   runApp(MyApp());
@@ -52,13 +53,16 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  void _incrementCounter() {
+  Future<void> _incrementCounter() async {
+    final result = await LokinetLib.prepareConnection();
+    print(result);
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
       // so that the display can reflect the updated values. If we changed
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
+
       _counter++;
     });
   }
@@ -104,6 +108,19 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
+            TextButton(
+              child: Text('Bootstrap'),
+              onPressed: () async {
+                await LokinetLib.bootstrapLokinet();
+              },
+            ),
+            Divider(),
+            TextButton(
+              child: Text('Connect'),
+              onPressed: () {
+                LokinetLib.connectToLokinet();
+              },
+            )
           ],
         ),
       ),
