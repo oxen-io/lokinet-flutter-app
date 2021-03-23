@@ -125,23 +125,10 @@ public class LokinetDaemon extends VpnService {
                 m_FD = iface.detachFd();
 
                 InjectVPNFD();
-
-                if (!Configure(config)) {
-                    //TODO: close vpn FD if this fails, either on native side, or here if possible
-                    Log.e(LOG_TAG, "failed to configure daemon");
-                    return START_NOT_STICKY;
-                }
-
-                m_UDPSocket = GetUDPSocket();
-
-                if (m_UDPSocket <= 0) {
-                    Log.e(LOG_TAG, "failed to get proper UDP handle from daemon, aborting.");
-                    return START_NOT_STICKY;
-                }
-
-                protect(m_UDPSocket);
-
                 new Thread(() -> {
+                    Configure(config);
+                    m_UDPSocket = GetUDPSocket();
+                    protect(m_UDPSocket);
                     Mainloop();
                 }).start();
 
