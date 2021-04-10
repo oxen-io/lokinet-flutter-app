@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lokinet_lib/lokinet_lib.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(MyApp());
@@ -11,6 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Lokinet App',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -55,6 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final key = new GlobalKey<ScaffoldState>();
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -62,6 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
+      key: key,
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
@@ -96,6 +100,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Text('Bootstrap'),
               ),
               onPressed: () async {
+                final sharedPreferences = await SharedPreferences.getInstance();
+                sharedPreferences.setInt(
+                    'test', 30);
                 await LokinetLib.bootstrapLokinet();
               },
             ),
@@ -108,6 +115,24 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () async {
                 final result = await LokinetLib.prepareConnection();
                 if (result) LokinetLib.connectToLokinet();
+              },
+            ),
+            Divider(),
+            TextButton(
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: Text('Is this thing on?'),
+              ),
+              onPressed: () async {
+                if (await LokinetLib.isRunning) {
+                  key.currentState.showSnackBar(new SnackBar(
+                    content: new Text('Yes!'),
+                  ));
+                } else {
+                  key.currentState.showSnackBar(new SnackBar(
+                    content: new Text('No!'),
+                  ));
+                }
               },
             ),
             Divider(),

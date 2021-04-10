@@ -36,4 +36,9 @@ class LokinetLib {
     final bool disconnect = await _channel.invokeMethod('disconnect');
     return disconnect;
   }
+
+  static Future<bool> get isRunning async {
+    final bool isRunning = await _channel.invokeMethod('isRunning');
+    return isRunning;
+  }
 }
