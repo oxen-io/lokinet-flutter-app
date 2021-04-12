@@ -1,21 +1,54 @@
 # Lokinet on the Go
 
-An app to interact with the Lokinet
+An app to interact with Lokinet as a vpn tunnel for android
 
-## Important
-Don't forget to put the jnilibs into lokinet_lib/android/src/main/jniLibs
+## building
 
-## Getting Started
+build requirements:
 
-This project is a starting point for a Flutter application.
+* flutter 2.x
+* lokinet android jni libs
 
-A few resources to get you started if this is your first Flutter project:
+first you need to get a build of the native libs for android lokinet
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+### native libs
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+you have 2 paths for this:
+
+* get a ci build of the apk and extract the libs
+* do it yourself (takes at least 30 minutes and a non windows build environment)
+
+#### libs from ci
+
+find the latest android ci build from [our ci server](https://oxen.rocks/oxen-io/loki-network/dev/?C=M&O=D)
+
+* extract the tarball
+* extract the apk
+* copy libs/* to lokinet_lib/android/src/main/jniLibs/
+
+#### DIY
+
+get the lokinet repo source and set up your environment:
+
+    $ git clone --recursive https://github.com/oxen-io/loki-network
+    $ cd loki-network/android
+    $ echo "# local.properites" > local.properties
+    $ echo "sdk.dir=/path/to/android/sdk" >> local.properties
+    $ echo "ndk.dir=/path/to/android/ndk" >> local.properties
+
+build it and wait for a bit:
+
+    $ gradle assembleDebug
+    
+copy the libs over:
+
+    $ cp -av build/intermediates/cmake/debug/obj/* /path/to/lokinet-mobile/lokinet_lib/android/src/main/jniLibs/
 
 
+### build with flutter
+
+now build the project with flutter:
+
+    $ flutter build apk --debug
+    
+if succesful it will produce an apk at `build/app/outputs/flutter-apk/app-debug.apk` which you can run
