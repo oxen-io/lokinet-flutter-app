@@ -15,6 +15,7 @@ public class LokinetDaemon extends VpnService {
     public static final String ACTION_DISCONNECT = "network.loki.lokinet.STOP";
     public static final String LOG_TAG = "LokinetDaemon";
     public static final String MESSAGE_CHANNEL = "LOKINET_DAEMON";
+    public static final String EXIT_NODE = "EXIT_NODE";
 
     static {
         System.loadLibrary("lokinet-android");
@@ -62,7 +63,16 @@ public class LokinetDaemon extends VpnService {
             disconnect();
             return START_NOT_STICKY;
         } else {
-            boolean connectedSucessfully = connect("exit.loki");
+            String exitNode = intent.getStringExtra(EXIT_NODE);
+
+            if (exitNode == null) {
+                Log.e(LOG_TAG, "No exit-node configured! Proceeding with exit.loki.");
+                exitNode = "exit.loki";
+            }
+
+            Log.e(LOG_TAG, "Using " + exitNode + " as exit-node.");
+
+            boolean connectedSucessfully = connect(exitNode);
             if (connectedSucessfully)
                 return START_STICKY;
             else

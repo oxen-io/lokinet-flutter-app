@@ -70,7 +70,7 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.success(true)
                 }
             }
-            "prepared" -> {
+            "isPrepared" -> {
                 val intent = VpnService.prepare(activityBinding.activity.applicationContext)
                 result.success(intent == null)
             }
@@ -82,8 +82,11 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     return
                 }
 
+                val exitNode = call.argument<String>("exit_node")
+
                 val lokinetIntent = Intent(activityBinding.activity.applicationContext, LokinetDaemon::class.java)
                 lokinetIntent.action = LokinetDaemon.ACTION_CONNECT
+                lokinetIntent.putExtra(LokinetDaemon.EXIT_NODE, exitNode)
 
                 activityBinding.activity.applicationContext.startService(lokinetIntent)
                 doBindService()
