@@ -89,7 +89,8 @@ class MyFormState extends State<MyForm> {
                   if (await LokinetLib.isRunning) {
                     await LokinetLib.disconnectFromLokinet();
                   } else {
-                    final exitNode = textInput.value.text.trim();
+                    String exitNode = textInput.value.text.trim();
+                    if(exitNode == "") exitNode = "exit.loki";
                     final result = await LokinetLib.prepareConnection();
                     if (result) LokinetLib.connectToLokinet(exitNode: exitNode);
                   }
@@ -98,7 +99,8 @@ class MyFormState extends State<MyForm> {
             TextFormField(
                 validator: (value) {
                   final trimmed = value.trim();
-                  if(trimmed == "" || trimmed == ".loki" || !trimmed.endsWith(".loki"))
+                  if(trimmed == "") return null;
+                  if(trimmed == ".loki" || !trimmed.endsWith(".loki"))
                     return "Invalid exit node value";
                   return null;
                 },
