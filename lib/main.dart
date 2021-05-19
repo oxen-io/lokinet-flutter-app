@@ -48,33 +48,66 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  MyHomePageState createState() => MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-
-  @override
+class MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final key = new GlobalKey<ScaffoldState>();
-
     return Scaffold(
       key: key,
-      body: Center(
+        body: MyForm()
+    );
+  }
+}
+
+// Create a Form widget.
+class MyForm extends StatefulWidget {
+  @override
+  MyFormState createState() {
+    return MyFormState();
+  }
+}
+
+class MyFormState extends State<MyForm> {
+  @override
+  Widget build(BuildContext context) {
+    final key = new GlobalKey<FormState>();
+    final textInput = TextEditingController();
+    return Form(
+      key: key,
+
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             IconButton(
                 iconSize: 160,
                 onPressed: () async {
+                  if(!key.currentState.validate()) {
+                    return;
+                  }
                   if (await LokinetLib.isRunning) {
                     await LokinetLib.disconnectFromLokinet();
                   } else {
+                    final exitNode = textInput.value.text.trim();
                     final result = await LokinetLib.prepareConnection();
-                    if (result) LokinetLib.connectToLokinet();
+                    if (result) LokinetLib.connectToLokinet(exitNode: exitNode);
                   }
                 },
                 icon: Icon(Icons.power_settings_new_outlined)),
-            Text('Would be pretty Cool if you would press a Button'),
+            TextFormField(
+                validator: (value) {
+                  final trimmed = value.trim();
+                  if(trimmed == "" || trimmed == ".loki" || !trimmed.endsWith(".loki"))
+                    return "Invalid exit node value";
+                  return null;
+                },
+                controller: textInput,
+                decoration: InputDecoration(
+                border: UnderlineInputBorder(),
+                labelText: 'Exit Node'
+              )
+            ),
             TextButton(
               child: Padding(
                   padding: EdgeInsets.all(10),
@@ -91,7 +124,6 @@ class _MyHomePageState extends State<MyHomePage> {
             )
           ]
         )
-      )
-    );
+      );
   }
 }
