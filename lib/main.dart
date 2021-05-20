@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lokinet_lib/lokinet_lib.dart';
+import 'package:lokinet_mobile/src/widget/lokinet_divider.dart';
+import 'package:lokinet_mobile/src/widget/themed_lokinet_logo.dart';
 
 void main() {
   runApp(MyApp());
@@ -56,7 +58,11 @@ class MyHomePageState extends State<MyHomePage> {
     final key = new GlobalKey<ScaffoldState>();
     return Scaffold(
       key: key,
-        body: MyForm()
+        body: Column(children: [
+          ThemedLokinetLogo(),
+          LokinetDivider(),
+          MyForm()
+        ])
     );
   }
 }
@@ -74,12 +80,17 @@ class MyFormState extends State<MyForm> {
   Widget build(BuildContext context) {
     final key = new GlobalKey<FormState>();
     final textInput = TextEditingController();
+
+    var brightness = MediaQuery.of(context).platformBrightness;
+    bool darkModeOn = brightness == Brightness.dark;
+
     return Form(
       key: key,
 
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+
             IconButton(
                 iconSize: 160,
                 onPressed: () async {
