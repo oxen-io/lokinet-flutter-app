@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lokinet_lib/lokinet_lib.dart';
 import 'package:lokinet_mobile/src/utils/is_dakmode.dart';
 import 'package:lokinet_mobile/src/widget/lokinet_divider.dart';
+import 'package:lokinet_mobile/src/widget/lokinet_power_button.dart';
 import 'package:lokinet_mobile/src/widget/themed_lokinet_logo.dart';
 
 void main() {
@@ -32,30 +35,19 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Lokinet'),
+      home: LokinetHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class LokinetHomePage extends StatefulWidget {
+  LokinetHomePage({Key key}) : super(key: key);
 
   @override
-  MyHomePageState createState() => MyHomePageState();
+  LokinetHomePageState createState() => LokinetHomePageState();
 }
 
-class MyHomePageState extends State<MyHomePage> {
+class LokinetHomePageState extends State<LokinetHomePage> {
   Widget build(BuildContext context) {
     final key = new GlobalKey<ScaffoldState>();
 
@@ -79,8 +71,44 @@ class MyForm extends StatefulWidget {
 
 class MyFormState extends State<MyForm> {
   static final key = new GlobalKey<FormState>();
+  Timer _timer;
+  bool isConnected = false;
   final textInput = TextEditingController();
 
+  void _startTimer() {
+    const halfSec = Duration(milliseconds: 50);
+    _timer = Timer.periodic(halfSec, (Timer timer) async {
+      await _updateLokinetStatus();
+    });
+  }
+
+  Future _updateLokinetStatus() async {
+    var _isConnected = await LokinetLib.isRunning;
+    setState(() {
+      isConnected = _isConnected;
+    });
+  }
+
+  Future _cancelTimer() async {
+    await _updateLokinetStatus();
+    _timer.cancel();
+  }
+
+  Future toogleLokinet() async {
+    if (!key.currentState.validate()) {
+      return;
+    }
+    if (await LokinetLib.isRunning) {
+      await LokinetLib.disconnectFromLokinet();
+      await _cancelTimer();
+    } else {
+      String exitNode = textInput.value.text.trim();
+      if (exitNode == "") exitNode = "exit.loki";
+      final result = await LokinetLib.prepareConnection();
+      if (result) LokinetLib.connectToLokinet(exitNode: exitNode);
+      _startTimer();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,73 +116,43 @@ class MyFormState extends State<MyForm> {
     Color color = darkModeOn ? Colors.white : Colors.black;
 
     return Form(
-        key: key,
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                      side: BorderSide(
-                          color: color, width: 1, style: BorderStyle.solid),
-                      shape: CircleBorder()),
-                  onPressed: () async {
-                    if (!key.currentState.validate()) {
-                      return;
-                    }
-                    if (await LokinetLib.isRunning) {
-                      await LokinetLib.disconnectFromLokinet();
-                    } else {
-                      String exitNode = textInput.value.text.trim();
-                      if (exitNode == "") exitNode = "exit.loki";
-                      final result = await LokinetLib.prepareConnection();
-                      if (result)
-                        LokinetLib.connectToLokinet(exitNode: exitNode);
-                    }
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.all(40),
-                    child: Icon(
-                      Icons.power_settings_new_outlined,
-                      size: 60,
-                      color: color,
-                    ),
-                  )),
-              LokinetDivider(),
-              Padding(
-                padding: EdgeInsets.only(left: 45, right: 45),
-                child: TextFormField(
-                  validator: (value) {
-                    final trimmed = value.trim();
-                    if (trimmed == "") return null;
-                    if (trimmed == ".loki" || !trimmed.endsWith(".loki"))
-                      return "Invalid exit node value";
-                    return null;
-                  },
-                  controller: textInput,
-                  cursorColor: color,
-                  decoration: InputDecoration(
-                      filled: true,
-                      fillColor: darkModeOn
-                          ? Color.fromARGB(255, 35, 35, 35)
-                          : Color.fromARGB(255, 226, 226, 226),
-                      border: InputBorder.none,
-                      labelStyle: TextStyle(color: color),
-                      labelText: 'Exit Node'),
-                ),
-              ),
-              TextButton(
-                  child: Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Text('Is this thing on?')),
-                  onPressed: () async {
-                    if (await LokinetLib.isRunning) {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(content: Text('Yes!')));
-                    } else {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(content: Text('No!')));
-                    }
-                  })
-            ]));
+      key: key,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          LokinetPowerButton(toogleLokinet),
+          LokinetDivider(),
+          Padding(
+            padding: EdgeInsets.only(left: 45, right: 45),
+            child: TextFormField(
+              validator: (value) {
+                final trimmed = value.trim();
+                if (trimmed == "") return null;
+                if (trimmed == ".loki" || !trimmed.endsWith(".loki"))
+                  return "Invalid exit node value";
+                return null;
+              },
+              controller: textInput,
+              cursorColor: color,
+              decoration: InputDecoration(
+                  filled: true,
+                  fillColor: darkModeOn
+                      ? Color.fromARGB(255, 35, 35, 35)
+                      : Color.fromARGB(255, 226, 226, 226),
+                  border: InputBorder.none,
+                  labelStyle: TextStyle(color: color),
+                  labelText: 'Exit Node'),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(20),
+            child: Text(
+              isConnected ? "Connected" : "Not Connected",
+              style: TextStyle(color: color),
+            ),
+          )
+        ],
+      ),
+    );
   }
 }
