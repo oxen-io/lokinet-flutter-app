@@ -78,10 +78,13 @@ class MyForm extends StatefulWidget {
 }
 
 class MyFormState extends State<MyForm> {
+  static final key = new GlobalKey<FormState>();
+  final textInput = TextEditingController();
+
+
   @override
   Widget build(BuildContext context) {
-    final key = new GlobalKey<FormState>();
-    final textInput = TextEditingController();
+
 
     bool darkModeOn = inDarkMode(context);
     Color color = darkModeOn ? Colors.white : Colors.black;
