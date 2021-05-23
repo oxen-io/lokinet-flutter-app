@@ -10,16 +10,24 @@ class LokinetDivider extends StatelessWidget {
       padding: EdgeInsets.only(left: 20, right: 20, top: 5, bottom: 5),
       child: Row(
         children: [
-          Text("+"),
+          Text(
+            "+",
+            style: TextStyle(
+                color: color, fontSize: 30, fontWeight: FontWeight.w100),
+          ),
           Expanded(
             child: new Container(
-                margin: const EdgeInsets.only(left: 10.0, right: 20.0),
+                margin: const EdgeInsets.only(left: 10.0, right: 10.0),
                 child: Divider(
                   color: color,
                   height: 0,
                 )),
           ),
-          Text("+")
+          Text(
+            "+",
+            style: TextStyle(
+                color: color, fontSize: 30, fontWeight: FontWeight.w100),
+          ),
         ],
       ),
     );

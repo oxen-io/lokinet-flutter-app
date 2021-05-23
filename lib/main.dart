@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lokinet_lib/lokinet_lib.dart';
+import 'package:lokinet_mobile/src/utils/is_dakmode.dart';
 import 'package:lokinet_mobile/src/widget/lokinet_divider.dart';
 import 'package:lokinet_mobile/src/widget/themed_lokinet_logo.dart';
 
@@ -56,14 +58,14 @@ class MyHomePage extends StatefulWidget {
 class MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final key = new GlobalKey<ScaffoldState>();
+
+    bool darkModeOn = inDarkMode(context);
+
     return Scaffold(
-      key: key,
-        body: Column(children: [
-          ThemedLokinetLogo(),
-          LokinetDivider(),
-          MyForm()
-        ])
-    );
+        key: key,
+        body: Container(
+            color: darkModeOn ? Colors.black : Colors.white,
+            child: Column(children: [ThemedLokinetLogo(), MyForm()])));
   }
 }
 
@@ -81,62 +83,77 @@ class MyFormState extends State<MyForm> {
     final key = new GlobalKey<FormState>();
     final textInput = TextEditingController();
 
-    var brightness = MediaQuery.of(context).platformBrightness;
-    bool darkModeOn = brightness == Brightness.dark;
+    bool darkModeOn = inDarkMode(context);
+    Color color = darkModeOn ? Colors.white : Colors.black;
 
     return Form(
-      key: key,
-
+        key: key,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-
-            IconButton(
-                iconSize: 160,
-                onPressed: () async {
-                  if(!key.currentState.validate()) {
-                    return;
-                  }
-                  if (await LokinetLib.isRunning) {
-                    await LokinetLib.disconnectFromLokinet();
-                  } else {
-                    String exitNode = textInput.value.text.trim();
-                    if(exitNode == "") exitNode = "exit.loki";
-                    final result = await LokinetLib.prepareConnection();
-                    if (result) LokinetLib.connectToLokinet(exitNode: exitNode);
-                  }
-                },
-                icon: Icon(Icons.power_settings_new_outlined)),
-            TextFormField(
-                validator: (value) {
-                  final trimmed = value.trim();
-                  if(trimmed == "") return null;
-                  if(trimmed == ".loki" || !trimmed.endsWith(".loki"))
-                    return "Invalid exit node value";
-                  return null;
-                },
-                controller: textInput,
-                decoration: InputDecoration(
-                border: UnderlineInputBorder(),
-                labelText: 'Exit Node'
-              )
-            ),
-            TextButton(
-              child: Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Text('Is this thing on?')),
-              onPressed: () async {
-                if (await LokinetLib.isRunning) {
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text('Yes!')));
-                } else {
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text('No!')));
-                }
-              }
-            )
-          ]
-        )
-      );
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                          color: color, width: 1, style: BorderStyle.solid),
+                      shape: CircleBorder()),
+                  onPressed: () async {
+                    if (!key.currentState.validate()) {
+                      return;
+                    }
+                    if (await LokinetLib.isRunning) {
+                      await LokinetLib.disconnectFromLokinet();
+                    } else {
+                      String exitNode = textInput.value.text.trim();
+                      if (exitNode == "") exitNode = "exit.loki";
+                      final result = await LokinetLib.prepareConnection();
+                      if (result)
+                        LokinetLib.connectToLokinet(exitNode: exitNode);
+                    }
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.all(40),
+                    child: Icon(
+                      Icons.power_settings_new_outlined,
+                      size: 60,
+                      color: color,
+                    ),
+                  )),
+              LokinetDivider(),
+              Padding(
+                padding: EdgeInsets.only(left: 45, right: 45),
+                child: TextFormField(
+                  validator: (value) {
+                    final trimmed = value.trim();
+                    if (trimmed == "") return null;
+                    if (trimmed == ".loki" || !trimmed.endsWith(".loki"))
+                      return "Invalid exit node value";
+                    return null;
+                  },
+                  controller: textInput,
+                  cursorColor: color,
+                  decoration: InputDecoration(
+                      filled: true,
+                      fillColor: darkModeOn
+                          ? Color.fromARGB(255, 35, 35, 35)
+                          : Color.fromARGB(255, 226, 226, 226),
+                      border: InputBorder.none,
+                      labelStyle: TextStyle(color: color),
+                      labelText: 'Exit Node'),
+                ),
+              ),
+              TextButton(
+                  child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Text('Is this thing on?')),
+                  onPressed: () async {
+                    if (await LokinetLib.isRunning) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text('Yes!')));
+                    } else {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text('No!')));
+                    }
+                  })
+            ]));
   }
 }

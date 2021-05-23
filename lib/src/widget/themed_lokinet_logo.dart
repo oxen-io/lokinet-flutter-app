@@ -9,7 +9,7 @@ class ThemedLokinetLogo extends StatelessWidget {
         : "assets/images/Lokinet_Text_Black.png";
 
     return Padding(
-      padding: EdgeInsets.all(50),
+      padding: EdgeInsets.only(top: 50, bottom: 30),
       child: Image.asset(
         lokinetLogo,
         width: MediaQuery.of(context).size.width * 0.60,
