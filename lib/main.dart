@@ -84,8 +84,6 @@ class MyFormState extends State<MyForm> {
 
   @override
   Widget build(BuildContext context) {
-
-
     bool darkModeOn = inDarkMode(context);
     Color color = darkModeOn ? Colors.white : Colors.black;
 
