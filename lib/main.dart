@@ -91,7 +91,7 @@ class MyFormState extends State<MyForm> {
 
   Future _cancelTimer() async {
     await _updateLokinetStatus();
-    _timer.cancel();
+    if (_timer != null) _timer.cancel();
   }
 
   Future toogleLokinet() async {
