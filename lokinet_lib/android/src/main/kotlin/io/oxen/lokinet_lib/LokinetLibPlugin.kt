@@ -1,12 +1,12 @@
 package io.oxen.lokinet_lib
 
 import android.app.Activity.RESULT_OK
-import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
-import android.content.SharedPreferences
+import android.content.ServiceConnection
 import android.net.VpnService
+import android.os.IBinder
 import android.util.Log
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -17,11 +17,6 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.PluginRegistry
 import network.loki.lokinet.LokinetDaemon
-import android.content.IntentFilter
-import android.widget.Toast
-import android.content.ComponentName
-import android.os.IBinder
-import android.content.ServiceConnection
 
 /** LokinetLibPlugin */
 class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -105,6 +100,13 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "isRunning" -> {
                 if (mBoundService != null) {
                     result.success(mBoundService!!.IsRunning())
+                } else {
+                    result.success(false)
+                }
+            }
+            "getStatus" -> {
+                if (mBoundService != null) {
+                    result.success(mBoundService!!.DumpStatus())
                 } else {
                     result.success(false)
                 }

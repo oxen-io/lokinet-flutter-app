@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
@@ -52,5 +53,11 @@ class LokinetLib {
   static Future<bool> get isBootstrapped async {
     var path = await getApplicationDocumentsDirectory();
     return File('${path.parent.path}/files/bootstrap.signed').existsSync();
+  }
+
+  static Future<dynamic> get status async {
+    var status = await _channel.invokeMethod('getStatus') as String;
+    if (status.isNotEmpty) return jsonDecode(status);
+    return null;
   }
 }

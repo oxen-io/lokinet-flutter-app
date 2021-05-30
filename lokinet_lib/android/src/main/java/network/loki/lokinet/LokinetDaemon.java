@@ -31,6 +31,8 @@ public class LokinetDaemon extends VpnService {
 
     public native boolean IsRunning();
 
+    public native String DumpStatus();
+
     public native boolean Stop();
 
     public native void InjectVPNFD();
@@ -101,8 +103,6 @@ public class LokinetDaemon extends VpnService {
                 return false;
             }
 
-            // FIXME: make these configurable
-//            String exitNode = "exit.loki";
             String upstreamDNS = "1.1.1.1";
             String ourRange = DetectFreeRange();
 
