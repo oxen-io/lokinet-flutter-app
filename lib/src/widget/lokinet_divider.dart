@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:lokinet_mobile/src/utils/is_dakmode.dart';
 
 class LokinetDivider extends StatelessWidget {
+  final String _ending;
+
+  LokinetDivider({bool minus = false}) : _ending = minus ? "-" : "+";
+
   @override
   Widget build(BuildContext context) {
     final color = inDarkMode(context) ? Colors.white : Colors.black;
@@ -10,10 +14,14 @@ class LokinetDivider extends StatelessWidget {
       padding: EdgeInsets.only(left: 20, right: 20, top: 5, bottom: 5),
       child: Row(
         children: [
-          Text(
-            "+",
-            style: TextStyle(
-                color: color, fontSize: 30, fontWeight: FontWeight.w100),
+          Container(
+            child: Text(
+              _ending,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: color, fontSize: 30, fontWeight: FontWeight.w100),
+            ),
+            width: 15,
           ),
           Expanded(
             child: new Container(
@@ -23,10 +31,14 @@ class LokinetDivider extends StatelessWidget {
                   height: 0,
                 )),
           ),
-          Text(
-            "+",
-            style: TextStyle(
-                color: color, fontSize: 30, fontWeight: FontWeight.w100),
+          Container(
+            child: Text(
+              _ending,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: color, fontSize: 30, fontWeight: FontWeight.w100),
+            ),
+            width: 15,
           ),
         ],
       ),
