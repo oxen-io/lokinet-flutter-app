@@ -23,26 +23,22 @@ you have 2 paths for this:
 find the latest android ci build from [our ci server](https://oxen.rocks/oxen-io/loki-network/dev/?C=M&O=D)
 
 * extract the tarball
-* extract the apk
-* copy libs/* to lokinet_lib/android/src/main/jniLibs/
+* run: `cp -av lokinet-android-*/lokinet-jni-*/* lokinet_lib/android/src/main/jniLibs/`
 
 #### DIY
 
 get the lokinet repo source and set up your environment:
 
     $ git clone --recursive https://github.com/oxen-io/loki-network
-    $ cd loki-network/android
-    $ echo "# local.properites" > local.properties
-    $ echo "sdk.dir=/path/to/android/sdk" >> local.properties
-    $ echo "ndk.dir=/path/to/android/ndk" >> local.properties
 
 build it and wait for a bit:
 
-    $ gradle assembleDebug
+    $ cd loki-network
+    $ ./contrib/android.sh
     
 copy the libs over:
 
-    $ cp -av build/intermediates/cmake/debug/obj/* /path/to/lokinet-mobile/lokinet_lib/android/src/main/jniLibs/
+    $ cp -av lokinet-jni-*/* /path/to/lokinet-mobile/lokinet_lib/android/src/main/jniLibs/
 
 
 ### build with flutter
