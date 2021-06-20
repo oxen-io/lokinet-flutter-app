@@ -78,10 +78,12 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
 
                 val exitNode = call.argument<String>("exit_node")
+                val upstreamDNS = call.argument<String>("upstream_dns")
 
                 val lokinetIntent = Intent(activityBinding.activity.applicationContext, LokinetDaemon::class.java)
                 lokinetIntent.action = LokinetDaemon.ACTION_CONNECT
                 lokinetIntent.putExtra(LokinetDaemon.EXIT_NODE, exitNode)
+                lokinetIntent.putExtra(LokinetDaemon.UPSTREAM_DNS, upstreamDNS)
 
                 activityBinding.activity.applicationContext.startService(lokinetIntent)
                 doBindService()

@@ -16,6 +16,11 @@ public class LokinetDaemon extends VpnService {
     public static final String LOG_TAG = "LokinetDaemon";
     public static final String MESSAGE_CHANNEL = "LOKINET_DAEMON";
     public static final String EXIT_NODE = "EXIT_NODE";
+    public static final String UPSTREAM_DNS = "UPSTREAM_DNS";
+
+
+    private static final String DEFAULT_EXIT_NODE = "exit.loki";
+    private static final String DEFAULT_UPSTREAM_DNS = "9.9.9.9";
 
     static {
         System.loadLibrary("lokinet-android");
@@ -67,14 +72,24 @@ public class LokinetDaemon extends VpnService {
         } else {
             String exitNode = intent.getStringExtra(EXIT_NODE);
 
-            if (exitNode == null) {
-                Log.e(LOG_TAG, "No exit-node configured! Proceeding with exit.loki.");
-                exitNode = "exit.loki";
+            if (exitNode == null || exitNode.isEmpty()) {
+                exitNode = DEFAULT_EXIT_NODE;
+                Log.e(LOG_TAG, "No exit-node configured! Proceeding with default.");
             }
 
             Log.e(LOG_TAG, "Using " + exitNode + " as exit-node.");
 
-            boolean connectedSucessfully = connect(exitNode);
+            String upstreamDNS = intent.getStringExtra(UPSTREAM_DNS);
+
+            if (upstreamDNS == null || upstreamDNS.isEmpty()) {
+              upstreamDNS = DEFAULT_UPSTREAM_DNS;
+              Log.e(LOG_TAG, "No upstream DNS configured! Proceeding with default.");
+            }
+
+            Log.e(LOG_TAG, "Using " + upstreamDNS + " as upstream DNS.");
+
+
+            boolean connectedSucessfully = connect(exitNode, upstreamDNS);
             if (connectedSucessfully)
                 return START_STICKY;
             else
@@ -82,7 +97,7 @@ public class LokinetDaemon extends VpnService {
         }
     }
 
-    private boolean connect(String exitNode) {
+    private boolean connect(String exitNode, String upstreamDNS) {
         if (!IsRunning()) {
             if (impl != null) {
                 Free(impl);
@@ -103,7 +118,6 @@ public class LokinetDaemon extends VpnService {
                 return false;
             }
 
-            String upstreamDNS = "1.1.1.1";
             String ourRange = DetectFreeRange();
 
             if (ourRange.isEmpty()) {

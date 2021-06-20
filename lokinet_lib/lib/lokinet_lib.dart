@@ -29,9 +29,9 @@ class LokinetLib {
     return prepare;
   }
 
-  static Future<bool> connectToLokinet({String exitNode = "exit.loki"}) async {
+  static Future<bool> connectToLokinet({String exitNode = "exit.loki", String upstreamDNS="9.9.9.9"}) async {
     final bool connect =
-        await _channel.invokeMethod('connect', {"exit_node": exitNode});
+        await _channel.invokeMethod('connect', {"exit_node": exitNode, "upstream_dns": upstreamDNS});
     return connect;
   }
 
