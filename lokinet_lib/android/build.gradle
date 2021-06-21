@@ -65,4 +65,4 @@ task ensureNativeLibs(type: Copy) {
 }
 
 ensureNativeLibs.dependsOn compileNativeLibs
-assemble.dependsOn ensureNativeLibs
+preBuild.dependsOn ensureNativeLibs
