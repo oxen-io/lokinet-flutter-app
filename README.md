@@ -22,3 +22,7 @@ to build the project with flutter:
     $ flutter build apk --debug
     
 if succesful it will produce an apk at `build/app/outputs/flutter-apk/app-debug.apk` which you can run
+
+## CI artifacts
+
+auto generated builds can be found at: https://oxen.rocks/majestrate/lokinet-mobile
