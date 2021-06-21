@@ -25,5 +25,5 @@ local flutter_builder(name, image, target, build_type, extra_cmds=[], allow_fail
 };
 [
   flutter_builder("android debug", "registry.oxen.rocks/lokinet-ci-android", "apk", "debug", extra_cmds=['UPLOAD_OS=android ./contrib/ci/drone-static-upload.sh']),
-  flutter_builder("android release", "registry.oxen.rocks/lokinet-ci-android", "apk", "release", extra_cmds=['UPLOAD_OS=android ./contrib/ci/drone-static-upload.sh']),
+  #flutter_builder("android release", "registry.oxen.rocks/lokinet-ci-android", "apk", "release", extra_cmds=['UPLOAD_OS=android ./contrib/ci/drone-static-upload.sh']),
 ]
