@@ -26,6 +26,7 @@ apply plugin: "kotlin-android"
 
 android {
     compileSdkVersion 29
+
     ndkVersion '21.3.6528147'
     sourceSets {
         main.java.srcDirs += "src/main/java"
@@ -48,6 +49,10 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
+task cleanNativeLibs(type: Delete) {
+    delete "$projectDir/../external/loki-network/build-android"
+}
+
 task compileNativeLibs(type: Exec) {
     workingDir "$projectDir/../external/loki-network"
     environment "NDK", project.android.ndkDirectory
@@ -66,3 +71,4 @@ task ensureNativeLibs(type: Copy) {
 
 ensureNativeLibs.dependsOn compileNativeLibs
 preBuild.dependsOn ensureNativeLibs
+clean.dependsOn cleanNativeLibs

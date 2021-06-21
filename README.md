@@ -37,6 +37,14 @@ to build the project with flutter:
     
 if succesful it will produce an apk at `build/app/outputs/flutter-apk/app-debug.apk` which you can run
 
+## cleaning
+
+an additional step is needed when cleaning this project:
+
+    $ flutter clean
+    $ cd lokinet_lib/andorid && gradle clean
+
+
 ## CI artifacts
 
 auto generated builds can be found at: https://oxen.rocks/majestrate/lokinet-mobile
