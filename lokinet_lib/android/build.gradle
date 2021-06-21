@@ -49,15 +49,18 @@ dependencies {
 }
 
 task compileNativeLibs(type: Exec) {
-    exec {
-        workingDir "$projectDir/../external/loki-network"
-        environment "NDK", project.android.ndkDirectory
-        executable "./contrib/android.sh"
-    }
+    workingDir "$projectDir/../external/loki-network"
+    environment "NDK", project.android.ndkDirectory
+    executable "./contrib/android.sh"
 }
 
 task ensureNativeLibs(type: Copy) {
-    from "$projectDir/../external/loki-network/lokinet-jni-*/*"
+    from("$projectDir/../external/loki-network/") {
+        include 'lokinet-jni-*/*/*.so'
+        eachFile { fcd ->
+            fcd.relativePath = new RelativePath(true, fcd.relativePath.segments.drop(1))
+        }
+    }
     into "$projectDir/src/main/jniLibs/"
 }
 
