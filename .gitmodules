@@ -1,0 +1,3 @@
+[submodule "lokinet_lib/external/loki-network"]
+	path = lokinet_lib/external/loki-network
+	url = https://github.com/oxen-io/loki-network
