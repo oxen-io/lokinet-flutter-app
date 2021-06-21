@@ -39,11 +39,9 @@ if succesful it will produce an apk at `build/app/outputs/flutter-apk/app-debug.
 
 ## cleaning
 
-an additional step is needed when cleaning this project:
+to make the workspace pristine use:
 
-    $ flutter clean
-    $ cd lokinet_lib/andorid && gradle clean
-
+    $ ./contrib/clean.sh
 
 ## CI artifacts
 
