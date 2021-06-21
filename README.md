@@ -13,9 +13,13 @@ build requirements:
 * git
 * autotools
 
-install flutter:
+install flutter with snap:
 
     $ sudo snap install flutter --classic
+
+or with [asdf](https://github.com/asdf-vm/asdf):
+
+    $ asdf install
 
 a one liner to install everything else:
 
