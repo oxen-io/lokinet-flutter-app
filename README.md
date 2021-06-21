@@ -6,10 +6,20 @@ An app to interact with Lokinet as a vpn tunnel for android
 
 build requirements:
 
-* flutter 1.x (ideally flutter 2.x if you are able to)
-* lokinet android jni libs
+* flutter
+* gnu make
+* cmake
+* pkg-config
+* git
+* autotools
 
-first you need to get a build of the native libs for android lokinet
+install flutter:
+
+    $ sudo snap install flutter --classic
+
+a one liner to install everything else:
+
+    $ sudo apt install make automake libtool pkg-config cmake git
 
 ### build with flutter
 
