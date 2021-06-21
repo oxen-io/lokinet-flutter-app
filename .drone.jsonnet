@@ -18,7 +18,7 @@ local flutter_builder(name, image, target, build_type, extra_cmds=[], allow_fail
             [if allow_fail then "failure"]: "ignore",
             environment: { SSH_KEY: { from_secret: "SSH_KEY" }, ANDROID: "android" },
             commands: [
-                '/opt/flutter/bin/flutter build ' + target + ' --' + build_type
+                'flutter build ' + target + ' --' + build_type
             ] + extra_cmds
         }
     ]
