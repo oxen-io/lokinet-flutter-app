@@ -106,7 +106,9 @@ class MyFormState extends State<MyForm> {
       final String exitNode = exitInput.value.text.trim();
       final String upstreamDNS = dnsInput.value.text.trim();
       final result = await LokinetLib.prepareConnection();
-      if (result) LokinetLib.connectToLokinet(exitNode: exitNode, upstreamDNS: upstreamDNS);
+      if (result)
+        LokinetLib.connectToLokinet(
+            exitNode: exitNode, upstreamDNS: upstreamDNS);
       _startTimer();
     }
   }
@@ -125,50 +127,49 @@ class MyFormState extends State<MyForm> {
           LokinetDivider(),
           Padding(
             padding: EdgeInsets.only(left: 45, right: 45),
-            child:
-              TextFormField(
-                validator: (value) {
-                  final trimmed = value.trim();
-                  if (trimmed == "") return null;
-                  if (trimmed == ".loki" || !trimmed.endsWith(".loki"))
+            child: TextFormField(
+              validator: (value) {
+                final trimmed = value.trim();
+                if (trimmed == "") return null;
+                if (trimmed == ".loki" || !trimmed.endsWith(".loki"))
                   return "Invalid exit node value";
-                  return null;
-                },
-                controller: exitInput,
-                cursorColor: color,
-                decoration: InputDecoration(
+                return null;
+              },
+              controller: exitInput,
+              cursorColor: color,
+              decoration: InputDecoration(
                   filled: true,
                   fillColor: darkModeOn
-                  ? Color.fromARGB(255, 35, 35, 35)
-                  : Color.fromARGB(255, 226, 226, 226),
+                      ? Color.fromARGB(255, 35, 35, 35)
+                      : Color.fromARGB(255, 226, 226, 226),
                   border: InputBorder.none,
                   labelStyle: TextStyle(color: color),
                   labelText: 'Exit Node'),
-              ),
             ),
+          ),
           Padding(
             padding: EdgeInsets.only(left: 45, right: 45),
-            child:
-              TextFormField(
-                validator: (value) {
-                  final trimmed = value.trim();
-                  if (trimmed == "") return null;
-                  RegExp re = RegExp(r'^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$');
-                  if (!re.hasMatch(trimmed))
-                    return "DNS server does not look like an IP";
-                  return null;
-                },
-                controller: dnsInput,
-                cursorColor: color,
-                decoration: InputDecoration(
+            child: TextFormField(
+              validator: (value) {
+                final trimmed = value.trim();
+                if (trimmed == "") return null;
+                RegExp re = RegExp(
+                    r'^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$');
+                if (!re.hasMatch(trimmed))
+                  return "DNS server does not look like an IP";
+                return null;
+              },
+              controller: dnsInput,
+              cursorColor: color,
+              decoration: InputDecoration(
                   filled: true,
                   fillColor: darkModeOn
-                  ? Color.fromARGB(255, 35, 35, 35)
-                  : Color.fromARGB(255, 226, 226, 226),
+                      ? Color.fromARGB(255, 35, 35, 35)
+                      : Color.fromARGB(255, 226, 226, 226),
                   border: InputBorder.none,
                   labelStyle: TextStyle(color: color),
                   labelText: 'UpstreamDNS'),
-              ),
+            ),
           ),
           Padding(
             padding: EdgeInsets.all(20),
