@@ -1,7 +1,7 @@
 local submodules = {
     name: 'submodules',
     image: 'drone/git',
-    commands: ['git fetch --tags', 'git submodule update --init --recursive --remote --depth=1']
+    commands: ['git fetch --tags', 'git submodule update --remote', 'git submodule update --init --recursive --depth=1']
 };
 
 local flutter_builder(name, image, target, build_type, extra_cmds=[], allow_fail=false) = {
