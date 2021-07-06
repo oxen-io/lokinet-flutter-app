@@ -74,17 +74,17 @@ dependencies {
 }
 
 task cleanNativeLibs(type: Delete) {
-	delete "$projectDir/../external/loki-network/build-android"
+	delete "$projectDir/../external/lokinet/build-android"
 }
 
 task compileNativeLibs(type: Exec) {
-	workingDir "$projectDir/../external/loki-network"
+	workingDir "$projectDir/../external/lokinet"
 	environment "NDK", project.android.ndkDirectory
 	executable "./contrib/android.sh"
 }
 
 task ensureNativeLibs(type: Copy) {
-	from("$projectDir/../external/loki-network/") {
+	from("$projectDir/../external/lokinet/") {
 		include 'lokinet-jni-*/*/*.so'
 		eachFile { fcd ->
 			fcd.relativePath = new RelativePath(true, fcd.relativePath.segments.drop(1))
