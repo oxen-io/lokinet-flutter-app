@@ -149,6 +149,7 @@ public class LokinetDaemon extends VpnService {
 
       // set up config values
       if (configVals != null) {
+        configVals.add(new ConfigValue("network", "ifaddr", ourRange));
         for (ConfigValue conf : configVals) {
           if (conf.Valid()) {
             config.AddDefaultValue(conf.Section, conf.Key, conf.Value);
