@@ -78,11 +78,13 @@ task cleanNativeLibs(type: Delete) {
 }
 
 task compileNativeLibs(type: Exec) {
-  def dir = new File("$projectDir/../external/lokinet")
-  if ( dir.exists() ) {
+  def f = new File("$projectDir/../external/lokinet/contrib/android.sh")
+  if ( f.exists() ) {
     workingDir "$projectDir/../external/lokinet"
     environment "NDK", project.android.ndkDirectory
     executable "./contrib/android.sh"
+  } else {
+    executable "true"
   }
 }
 
