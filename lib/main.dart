@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lokinet_lib/lokinet_lib.dart';
 import 'package:lokinet_mobile/src/utils/is_dakmode.dart';
 import 'package:lokinet_mobile/src/widget/lokinet_divider.dart';
@@ -9,13 +10,19 @@ import 'package:lokinet_mobile/src/widget/lokinet_power_button.dart';
 import 'package:lokinet_mobile/src/widget/themed_lokinet_logo.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(LokinetApp());
 }
 
-class MyApp extends StatelessWidget {
+class LokinetApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     return MaterialApp(
       title: 'Lokinet App',
       debugShowCheckedModeBanner: false,
@@ -61,6 +68,9 @@ class LokinetHomePageState extends State<LokinetHomePage> {
   }
 }
 
+final exitInput = TextEditingController();
+final dnsInput = TextEditingController();
+
 // Create a Form widget.
 class MyForm extends StatefulWidget {
   @override
@@ -73,8 +83,6 @@ class MyFormState extends State<MyForm> {
   static final key = new GlobalKey<FormState>();
   Timer _timer;
   bool isConnected = false;
-  final exitInput = TextEditingController();
-  final dnsInput = TextEditingController();
 
   void _startTimer() {
     const halfSec = Duration(milliseconds: 50);
@@ -137,6 +145,7 @@ class MyFormState extends State<MyForm> {
               },
               controller: exitInput,
               cursorColor: color,
+              style: TextStyle(color: color),
               decoration: InputDecoration(
                   filled: true,
                   fillColor: darkModeOn
@@ -147,6 +156,7 @@ class MyFormState extends State<MyForm> {
                   labelText: 'Exit Node'),
             ),
           ),
+          LokinetDivider(minus: true),
           Padding(
             padding: EdgeInsets.only(left: 45, right: 45),
             child: TextFormField(
@@ -161,6 +171,7 @@ class MyFormState extends State<MyForm> {
               },
               controller: dnsInput,
               cursorColor: color,
+              style: TextStyle(color: color),
               decoration: InputDecoration(
                   filled: true,
                   fillColor: darkModeOn
@@ -177,7 +188,12 @@ class MyFormState extends State<MyForm> {
               isConnected ? "Connected" : "Not Connected",
               style: TextStyle(color: color),
             ),
-          )
+          ),
+          // TextButton(
+          //     onPressed: () async {
+          //       log((await LokinetLib.status).toString());
+          //     },
+          //     child: Text("Test"))
         ],
       ),
     );
