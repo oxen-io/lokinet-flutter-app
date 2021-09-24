@@ -17,7 +17,6 @@ class LokinetApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -179,7 +178,7 @@ class MyFormState extends State<MyForm> {
                       : Color.fromARGB(255, 226, 226, 226),
                   border: InputBorder.none,
                   labelStyle: TextStyle(color: color),
-                  labelText: 'UpstreamDNS'),
+                  labelText: 'DNS'),
             ),
           ),
           Padding(
