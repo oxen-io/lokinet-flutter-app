@@ -45,7 +45,3 @@ if succesful it will produce an apk at `build/app/outputs/flutter-apk/app-debug.
 to make the workspace pristine use:
 
     $ ./contrib/clean.sh
-
-## CI artifacts
-
-auto generated builds can be found at: https://oxen.rocks/majestrate/lokinet-mobile
