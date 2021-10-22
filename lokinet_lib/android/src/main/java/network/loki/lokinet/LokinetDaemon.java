@@ -177,6 +177,7 @@ public class LokinetDaemon extends VpnService {
 
       builder.addAddress(ourIP, ourMask);
       builder.addRoute("0.0.0.0", 0);
+      builder.addRoute("::", 0);
       builder.addDnsServer(upstreamDNS);
       builder.setSession("Lokinet");
       builder.setConfigureIntent(null);
