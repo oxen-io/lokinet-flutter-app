@@ -89,8 +89,8 @@ task compileNativeLibs(type: Exec) {
 }
 
 task ensureNativeLibs(type: Copy) {
-	from("$projectDir/../external/lokinet/") {
-		include 'lokinet-jni-*/*/*.so'
+	from("$projectDir/../external/lokinet/build-android") {
+		include 'out/*/*.so'
 		eachFile { fcd ->
 			fcd.relativePath = new RelativePath(true, fcd.relativePath.segments.drop(1))
 		}
