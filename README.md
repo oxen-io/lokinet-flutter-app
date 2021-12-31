@@ -36,9 +36,9 @@ before building make sure to update the submodules:
 
 to build the project with flutter:
 
-    $ flutter build apk
+    $ flutter build apk --debug
     
-if succesful it will produce an apk at `build/app/outputs/flutter-apk/app-release.apk` which you can run
+if succesful it will produce an apk at `build/app/outputs/flutter-apk/app-debug.apk` which you can run
 
 ## cleaning
 
