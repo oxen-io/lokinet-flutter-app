@@ -2,7 +2,7 @@
 
 An app to interact with Lokinet as a vpn tunnel for android
 
-[![Build Status](https://ci.oxen.rocks/api/badges/majestrate/lokinet-mobile/status.svg)](https://ci.oxen.rocks/majestrate/lokinet-mobile)
+[![Build Status](https://ci.oxen.rocks/api/badges/oxen-io/lokinet-flutter-app/status.svg)](https://ci.oxen.rocks/oxen-io/lokinet-flutter-app)
 
 
 ## building
