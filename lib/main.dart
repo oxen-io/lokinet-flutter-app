@@ -1,15 +1,19 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lokinet_lib/lokinet_lib.dart';
+import 'package:lokinet_mobile/src/settings.dart';
 import 'package:lokinet_mobile/src/utils/is_dakmode.dart';
 import 'package:lokinet_mobile/src/widget/lokinet_divider.dart';
 import 'package:lokinet_mobile/src/widget/lokinet_power_button.dart';
 import 'package:lokinet_mobile/src/widget/themed_lokinet_logo.dart';
 
-void main() {
+void main() async {
+  //Load settings
+  WidgetsFlutterBinding.ensureInitialized();
+  await Settings.getInstance().initialize();
+
   runApp(LokinetApp());
 }
 
@@ -61,14 +65,17 @@ class LokinetHomePageState extends State<LokinetHomePage> {
 
     return Scaffold(
         key: key,
+        resizeToAvoidBottomInset:
+            false, //Prevents overflow when keyboard is shown
         body: Container(
             color: darkModeOn ? Colors.black : Colors.white,
             child: Column(children: [ThemedLokinetLogo(), MyForm()])));
   }
 }
 
-final exitInput = TextEditingController();
-final dnsInput = TextEditingController();
+final exitInput = TextEditingController(text: Settings.getInstance().exitNode);
+final dnsInput =
+    TextEditingController(text: Settings.getInstance().upstreamDNS);
 
 // Create a Form widget.
 class MyForm extends StatefulWidget {
@@ -110,12 +117,15 @@ class MyFormState extends State<MyForm> {
       await LokinetLib.disconnectFromLokinet();
       await _cancelTimer();
     } else {
-      final String exitNode = exitInput.value.text.trim();
-      final String upstreamDNS = dnsInput.value.text.trim();
+      //Save the exit node and upstream dns
+      final Settings settings = Settings.getInstance();
+      settings.exitNode = exitInput.value.text.trim();
+      settings.upstreamDNS = dnsInput.value.text.trim();
+
       final result = await LokinetLib.prepareConnection();
       if (result)
         LokinetLib.connectToLokinet(
-            exitNode: exitNode, upstreamDNS: upstreamDNS);
+            exitNode: settings.exitNode, upstreamDNS: settings.upstreamDNS);
       _startTimer();
     }
   }
