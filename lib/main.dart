@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lokinet_lib/lokinet_lib.dart';
 import 'package:lokinet_mobile/src/settings.dart';
-import 'package:lokinet_mobile/src/utils/is_dakmode.dart';
+import 'package:lokinet_mobile/src/utils/is_darkmode.dart';
 import 'package:lokinet_mobile/src/widget/lokinet_divider.dart';
 import 'package:lokinet_mobile/src/widget/lokinet_power_button.dart';
 import 'package:lokinet_mobile/src/widget/themed_lokinet_logo.dart';
@@ -109,7 +109,7 @@ class MyFormState extends State<MyForm> {
     if (_timer != null) _timer.cancel();
   }
 
-  Future toogleLokinet() async {
+  Future toggleLokinet() async {
     if (!key.currentState.validate()) {
       return;
     }
@@ -140,7 +140,7 @@ class MyFormState extends State<MyForm> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          LokinetPowerButton(toogleLokinet),
+          LokinetPowerButton(toggleLokinet),
           LokinetDivider(),
           Padding(
             padding: EdgeInsets.only(left: 45, right: 45),

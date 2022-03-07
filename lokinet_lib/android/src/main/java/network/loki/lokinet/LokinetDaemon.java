@@ -93,8 +93,8 @@ public class LokinetDaemon extends VpnService {
       // set log leve to info
       configVals.add(new ConfigValue("logging", "level", "info"));
 
-      boolean connectedSucessfully = connect(configVals);
-      if (connectedSucessfully) return START_STICKY;
+      boolean connectedSuccessfully = connect(configVals);
+      if (connectedSuccessfully) return START_STICKY;
       else return START_NOT_STICKY;
     }
   }

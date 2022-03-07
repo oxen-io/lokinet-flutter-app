@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lokinet_mobile/src/utils/is_dakmode.dart';
+import 'package:lokinet_mobile/src/utils/is_darkmode.dart';
 
 class LokinetDivider extends StatelessWidget {
   final String _ending;
