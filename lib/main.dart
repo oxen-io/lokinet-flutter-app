@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lokinet_lib/lokinet_lib.dart';
 import 'package:lokinet_mobile/src/settings.dart';
-import 'package:lokinet_mobile/src/utils/is_dakmode.dart';
+import 'package:lokinet_mobile/src/utils/is_darkmode.dart';
 import 'package:lokinet_mobile/src/widget/lokinet_divider.dart';
 import 'package:lokinet_mobile/src/widget/lokinet_power_button.dart';
 import 'package:lokinet_mobile/src/widget/themed_lokinet_logo.dart';
@@ -87,14 +87,14 @@ class MyForm extends StatefulWidget {
 
 class MyFormState extends State<MyForm> {
   static final key = new GlobalKey<FormState>();
-  Timer _timer;
   bool isConnected = false;
 
-  void _startTimer() {
-    const halfSec = Duration(milliseconds: 50);
-    _timer = Timer.periodic(halfSec, (Timer timer) async {
-      await _updateLokinetStatus();
-    });
+  @override
+  initState() {
+    super.initState();
+    LokinetLib.onStatusUpdate((bool status) => setState(() {
+          isConnected = status;
+        }));
   }
 
   Future _updateLokinetStatus() async {
@@ -104,18 +104,12 @@ class MyFormState extends State<MyForm> {
     });
   }
 
-  Future _cancelTimer() async {
-    await _updateLokinetStatus();
-    if (_timer != null) _timer.cancel();
-  }
-
-  Future toogleLokinet() async {
+  Future toggleLokinet() async {
     if (!key.currentState.validate()) {
       return;
     }
     if (await LokinetLib.isRunning) {
       await LokinetLib.disconnectFromLokinet();
-      await _cancelTimer();
     } else {
       //Save the exit node and upstream dns
       final Settings settings = Settings.getInstance();
@@ -126,7 +120,6 @@ class MyFormState extends State<MyForm> {
       if (result)
         LokinetLib.connectToLokinet(
             exitNode: settings.exitNode, upstreamDNS: settings.upstreamDNS);
-      _startTimer();
     }
   }
 
@@ -140,7 +133,7 @@ class MyFormState extends State<MyForm> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          LokinetPowerButton(toogleLokinet),
+          LokinetPowerButton(toggleLokinet),
           LokinetDivider(),
           Padding(
             padding: EdgeInsets.only(left: 45, right: 45),

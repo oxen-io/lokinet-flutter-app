@@ -13,7 +13,7 @@ public class LokinetConfig {
 
   /*** load config file from disk */
   public native boolean Load();
-  /*** save chages to disk */
+  /*** save changes to disk */
   public native boolean Save();
 
   /** override default config value before loading from config file */
