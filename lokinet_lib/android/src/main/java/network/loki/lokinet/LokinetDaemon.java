@@ -6,8 +6,11 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
+import androidx.lifecycle.MutableLiveData;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class LokinetDaemon extends VpnService {
 
@@ -50,13 +53,24 @@ public class LokinetDaemon extends VpnService {
   int m_FD = -1;
   int m_UDPSocket = -1;
 
+  private Timer mStatusCheckTimer;
+  private MutableLiveData<Boolean> mStatus = new MutableLiveData<Boolean>();
+
   @Override
   public void onCreate() {
+    mStatus.postValue(false);
+    mStatusCheckTimer = new Timer();
+    mStatusCheckTimer.schedule(new CheckStatus(), 0, 500);
     super.onCreate();
   }
 
   @Override
   public void onDestroy() {
+    if(mStatusCheckTimer != null) {
+      mStatusCheckTimer.cancel();
+      mStatusCheckTimer = null;
+    }
+
     super.onDestroy();
     disconnect();
   }
@@ -94,8 +108,10 @@ public class LokinetDaemon extends VpnService {
       configVals.add(new ConfigValue("logging", "level", "info"));
 
       boolean connectedSuccessfully = connect(configVals);
-      if (connectedSuccessfully) return START_STICKY;
-      else return START_NOT_STICKY;
+      if (connectedSuccessfully)
+        return START_STICKY;
+      else
+        return START_NOT_STICKY;
     }
   }
 
@@ -111,8 +127,10 @@ public class LokinetDaemon extends VpnService {
     }
 
     public boolean Valid() {
-      if (Section == null || Key == null || Value == null) return false;
-      if (Section.isEmpty() || Key.isEmpty() || Value.isEmpty()) return false;
+      if (Section == null || Key == null || Value == null)
+        return false;
+      if (Section.isEmpty() || Key.isEmpty() || Value.isEmpty())
+        return false;
       return true;
     }
   }
@@ -153,7 +171,8 @@ public class LokinetDaemon extends VpnService {
         for (ConfigValue conf : configVals) {
           if (conf.Valid()) {
             config.AddDefaultValue(conf.Section, conf.Key, conf.Value);
-            if (conf.Section.equals("dns") && conf.Key.equals("upstream")) upstreamDNS = conf.Value;
+            if (conf.Section.equals("dns") && conf.Key.equals("upstream"))
+              upstreamDNS = conf.Value;
           }
         }
       }
@@ -192,18 +211,19 @@ public class LokinetDaemon extends VpnService {
 
       InjectVPNFD();
       new Thread(
-              () -> {
-                Configure(config);
-                m_UDPSocket = GetUDPSocket();
-                protect(m_UDPSocket);
-                Mainloop();
-              })
+          () -> {
+            Configure(config);
+            m_UDPSocket = GetUDPSocket();
+            protect(m_UDPSocket);
+            Mainloop();
+          })
           .start();
 
       Log.d(LOG_TAG, "started successfully!");
     } else {
       Log.d(LOG_TAG, "already running");
     }
+    updateStatus();
     return true;
   }
 
@@ -211,15 +231,24 @@ public class LokinetDaemon extends VpnService {
     if (IsRunning()) {
       Stop();
     }
-    //        if (impl != null) {
-    //            Free(impl);
-    //            impl = null;
-    //        }
+    // if (impl != null) {
+    // Free(impl);
+    // impl = null;
+    // }
+    updateStatus();
+  }
+
+  public MutableLiveData<Boolean> getStatus() {
+    return mStatus;
+  }
+
+  private void updateStatus() {
+    mStatus.postValue(IsRunning());
   }
 
   /**
-   * Class for clients to access. Because we know this service always runs in the same process as
-   * its clients, we don't need to deal with IPC.
+   * Class for clients to access. Because we know this service always runs in the
+   * same process as its clients, we don't need to deal with IPC.
    */
   public class LocalBinder extends Binder {
     public LokinetDaemon getService() {
@@ -233,4 +262,10 @@ public class LokinetDaemon extends VpnService {
   }
 
   private final IBinder mBinder = new LocalBinder();
+
+  private class CheckStatus extends TimerTask {
+    public void run() {
+      updateStatus();
+    }
+  }
 }

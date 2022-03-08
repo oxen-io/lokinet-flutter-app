@@ -9,9 +9,11 @@ import android.net.VpnService
 import android.os.IBinder
 import android.util.Log
 import androidx.annotation.NonNull
+import androidx.lifecycle.Observer
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -29,17 +31,40 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     ///
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
     /// when the Flutter Engine is detached from the Activity
-    private lateinit var channel: MethodChannel
+    private lateinit var mMethodChannel: MethodChannel
+    private lateinit var mStatusEventChannel: EventChannel
+    private var mEventSink: EventChannel.EventSink? = null
+
+    private var mStatusObserver =
+            Observer<Boolean> { newStatus ->
+                // Propagate to the dart package.
+                mEventSink?.success(newStatus)
+            }
 
     override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         System.loadLibrary("lokinet-android")
 
-        channel = MethodChannel(binding.binaryMessenger, "lokinet_lib")
-        channel.setMethodCallHandler(this)
+        mMethodChannel = MethodChannel(binding.binaryMessenger, "lokinet_lib_method_channel")
+        mMethodChannel.setMethodCallHandler(this)
+
+        mStatusEventChannel =
+                EventChannel(binding.binaryMessenger, "lokinet_lib_status_event_channel")
+        mStatusEventChannel.setStreamHandler(
+                object : EventChannel.StreamHandler {
+                    override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                        mEventSink = events
+                    }
+
+                    override fun onCancel(arguments: Any?) {
+                        mEventSink?.endOfStream()
+                        mEventSink = null
+                    }
+                }
+        )
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-        channel.setMethodCallHandler(null)
+        mMethodChannel.setMethodCallHandler(null)
         doUnbindService()
     }
 
@@ -49,15 +74,16 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 val intent = VpnService.prepare(activityBinding.activity.applicationContext)
                 if (intent != null) {
                     var listener: PluginRegistry.ActivityResultListener? = null
-                    listener = PluginRegistry.ActivityResultListener { req, res, _ ->
-                        if (req == 0 && res == RESULT_OK) {
-                            result.success(true)
-                        } else {
-                            result.success(false)
-                        }
-                        listener?.let { activityBinding.removeActivityResultListener(it) }
-                        true
-                    }
+                    listener =
+                            PluginRegistry.ActivityResultListener { req, res, _ ->
+                                if (req == 0 && res == RESULT_OK) {
+                                    result.success(true)
+                                } else {
+                                    result.success(false)
+                                }
+                                listener?.let { activityBinding.removeActivityResultListener(it) }
+                                true
+                            }
                     activityBinding.addActivityResultListener(listener)
                     activityBinding.activity.startActivityForResult(intent, 0)
                 } else {
@@ -80,7 +106,11 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 val exitNode = call.argument<String>("exit_node")
                 val upstreamDNS = call.argument<String>("upstream_dns")
 
-                val lokinetIntent = Intent(activityBinding.activity.applicationContext, LokinetDaemon::class.java)
+                val lokinetIntent =
+                        Intent(
+                                activityBinding.activity.applicationContext,
+                                LokinetDaemon::class.java
+                        )
                 lokinetIntent.action = LokinetDaemon.ACTION_CONNECT
                 lokinetIntent.putExtra(LokinetDaemon.EXIT_NODE, exitNode)
                 lokinetIntent.putExtra(LokinetDaemon.UPSTREAM_DNS, upstreamDNS)
@@ -91,7 +121,11 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 result.success(true)
             }
             "disconnect" -> {
-                val lokinetIntent = Intent(activityBinding.activity.applicationContext, LokinetDaemon::class.java)
+                val lokinetIntent =
+                        Intent(
+                                activityBinding.activity.applicationContext,
+                                LokinetDaemon::class.java
+                        )
                 lokinetIntent.action = LokinetDaemon.ACTION_DISCONNECT
 
                 activityBinding.activity.applicationContext.startService(lokinetIntent)
@@ -129,26 +163,36 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     override fun onDetachedFromActivityForConfigChanges() {}
 
-    private val mConnection: ServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            mBoundService = (service as LokinetDaemon.LocalBinder).getService()
-        }
+    private val mConnection: ServiceConnection =
+            object : ServiceConnection {
+                override fun onServiceConnected(className: ComponentName, service: IBinder) {
+                    mBoundService = (service as LokinetDaemon.LocalBinder).getService()
 
-        override fun onServiceDisconnected(className: ComponentName) {
-            mBoundService = null
-        }
-    }
+                    mBoundService?.getStatus()?.observeForever(mStatusObserver)
+                }
+
+                override fun onServiceDisconnected(className: ComponentName) {
+                    mBoundService?.getStatus()?.removeObserver(mStatusObserver)
+
+                    mBoundService = null
+                }
+            }
 
     fun doBindService() {
         if (activityBinding.activity.applicationContext.bindService(
-                Intent(activityBinding.activity.applicationContext, LokinetDaemon::class.java),
-                mConnection, Context.BIND_AUTO_CREATE
-            )
+                        Intent(
+                                activityBinding.activity.applicationContext,
+                                LokinetDaemon::class.java
+                        ),
+                        mConnection,
+                        Context.BIND_AUTO_CREATE
+                )
         ) {
             mShouldUnbind = true
         } else {
             Log.e(
-                LokinetDaemon.LOG_TAG, "Error: The requested service doesn't exist, or this client isn't allowed access to it."
+                    LokinetDaemon.LOG_TAG,
+                    "Error: The requested service doesn't exist, or this client isn't allowed access to it."
             )
         }
     }
@@ -160,4 +204,3 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
     }
 }
-

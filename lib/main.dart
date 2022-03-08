@@ -87,14 +87,14 @@ class MyForm extends StatefulWidget {
 
 class MyFormState extends State<MyForm> {
   static final key = new GlobalKey<FormState>();
-  Timer _timer;
   bool isConnected = false;
 
-  void _startTimer() {
-    const halfSec = Duration(milliseconds: 50);
-    _timer = Timer.periodic(halfSec, (Timer timer) async {
-      await _updateLokinetStatus();
-    });
+  @override
+  initState() {
+    super.initState();
+    LokinetLib.onStatusUpdate((bool status) => setState(() {
+          isConnected = status;
+        }));
   }
 
   Future _updateLokinetStatus() async {
@@ -104,18 +104,12 @@ class MyFormState extends State<MyForm> {
     });
   }
 
-  Future _cancelTimer() async {
-    await _updateLokinetStatus();
-    if (_timer != null) _timer.cancel();
-  }
-
   Future toggleLokinet() async {
     if (!key.currentState.validate()) {
       return;
     }
     if (await LokinetLib.isRunning) {
       await LokinetLib.disconnectFromLokinet();
-      await _cancelTimer();
     } else {
       //Save the exit node and upstream dns
       final Settings settings = Settings.getInstance();
@@ -126,7 +120,6 @@ class MyFormState extends State<MyForm> {
       if (result)
         LokinetLib.connectToLokinet(
             exitNode: settings.exitNode, upstreamDNS: settings.upstreamDNS);
-      _startTimer();
     }
   }
 
