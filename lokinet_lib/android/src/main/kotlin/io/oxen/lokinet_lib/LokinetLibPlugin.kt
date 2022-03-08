@@ -9,10 +9,13 @@ import android.net.VpnService
 import android.os.IBinder
 import android.util.Log
 import androidx.annotation.NonNull
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.embedding.engine.plugins.lifecycle.HiddenLifecycleReference
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -39,6 +42,13 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             Observer<Boolean> { newStatus ->
                 // Propagate to the dart package.
                 mEventSink?.success(newStatus)
+            }
+
+    private var mLifecycleOwner =
+            object : LifecycleOwner {
+                override fun getLifecycle(): Lifecycle {
+                    return (activityBinding.lifecycle as HiddenLifecycleReference).lifecycle
+                }
             }
 
     override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
@@ -140,7 +150,7 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.success(false)
                 }
             }
-            "getStatus" -> {
+            "getInfo" -> {
                 if (mBoundService != null) {
                     result.success(mBoundService!!.DumpStatus())
                 } else {
@@ -168,12 +178,10 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 override fun onServiceConnected(className: ComponentName, service: IBinder) {
                     mBoundService = (service as LokinetDaemon.LocalBinder).getService()
 
-                    mBoundService?.getStatus()?.observeForever(mStatusObserver)
+                    mBoundService?.getStatus()?.observe(mLifecycleOwner, mStatusObserver)
                 }
 
                 override fun onServiceDisconnected(className: ComponentName) {
-                    mBoundService?.getStatus()?.removeObserver(mStatusObserver)
-
                     mBoundService = null
                 }
             }

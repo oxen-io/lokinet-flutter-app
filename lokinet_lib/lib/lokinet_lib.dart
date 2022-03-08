@@ -12,6 +12,17 @@ class LokinetLib {
   static const EventChannel _statusEventChannel =
       const EventChannel('lokinet_lib_status_event_channel');
 
+  static bool _status = false;
+
+  static bool get status => _status;
+
+  static Stream<bool> _statusEventStream = _statusEventChannel
+      .receiveBroadcastStream()
+      .cast<bool>()
+    ..listen((dynamic newStatus) => _status = newStatus);
+
+  static Stream<bool> get statusEventStream => _statusEventStream;
+
   static Future bootstrapLokinet() async {
     final request = await HttpClient()
         .getUrl(Uri.parse('https://seed.lokinet.org/lokinet.signed'));
@@ -60,15 +71,9 @@ class LokinetLib {
     return File('${path.parent.path}/files/bootstrap.signed').existsSync();
   }
 
-  static Future<dynamic> get status async {
-    var status = await _methodChannel.invokeMethod('getStatus') as String;
+  static Future<dynamic> get info async {
+    var status = await _methodChannel.invokeMethod('getInfo') as String;
     if (status.isNotEmpty) return jsonDecode(status);
     return null;
-  }
-
-  static void onStatusUpdate(void Function(bool) onStatusUpdateCallback) {
-    _statusEventChannel
-        .receiveBroadcastStream()
-        .listen((dynamic status) => onStatusUpdateCallback(status));
   }
 }
