@@ -66,7 +66,7 @@ public class LokinetDaemon extends VpnService {
 
   @Override
   public void onDestroy() {
-    if(mStatusCheckTimer != null) {
+    if (mStatusCheckTimer != null) {
       mStatusCheckTimer.cancel();
       mStatusCheckTimer = null;
     }
@@ -113,6 +113,12 @@ public class LokinetDaemon extends VpnService {
       else
         return START_NOT_STICKY;
     }
+  }
+
+  @Override
+  public void onRevoke() {
+    mStatus.postValue(false);
+    super.onRevoke();
   }
 
   private class ConfigValue {
@@ -243,7 +249,7 @@ public class LokinetDaemon extends VpnService {
   }
 
   private void updateStatus() {
-    mStatus.postValue(IsRunning());
+    mStatus.postValue(IsRunning() && VpnService.prepare(LokinetDaemon.this) == null);
   }
 
   /**
