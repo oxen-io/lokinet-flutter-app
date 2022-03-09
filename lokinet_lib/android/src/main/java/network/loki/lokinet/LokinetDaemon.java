@@ -53,22 +53,22 @@ public class LokinetDaemon extends VpnService {
   int m_FD = -1;
   int m_UDPSocket = -1;
 
-  private Timer mStatusCheckTimer;
-  private MutableLiveData<Boolean> mStatus = new MutableLiveData<Boolean>();
+  private Timer mUpdateIsConnectedTimer;
+  private MutableLiveData<Boolean> isConnected = new MutableLiveData<Boolean>();
 
   @Override
   public void onCreate() {
-    mStatus.postValue(false);
-    mStatusCheckTimer = new Timer();
-    mStatusCheckTimer.schedule(new CheckStatus(), 0, 500);
+    isConnected.postValue(false);
+    mUpdateIsConnectedTimer = new Timer();
+    mUpdateIsConnectedTimer.schedule(new UpdateIsConnectedTask(), 0, 500);
     super.onCreate();
   }
 
   @Override
   public void onDestroy() {
-    if (mStatusCheckTimer != null) {
-      mStatusCheckTimer.cancel();
-      mStatusCheckTimer = null;
+    if (mUpdateIsConnectedTimer != null) {
+      mUpdateIsConnectedTimer.cancel();
+      mUpdateIsConnectedTimer = null;
     }
 
     super.onDestroy();
@@ -79,12 +79,18 @@ public class LokinetDaemon extends VpnService {
   public int onStartCommand(Intent intent, int flags, int startID) {
     Log.d(LOG_TAG, "onStartCommand()");
 
-    if (intent.getAction().equals(ACTION_DISCONNECT)) {
+    String action = intent != null ? intent.getAction() : "";
+
+    if (ACTION_DISCONNECT.equals(action)) {
       disconnect();
       return START_NOT_STICKY;
     } else {
       ArrayList<ConfigValue> configVals = new ArrayList<ConfigValue>();
-      String exitNode = intent.getStringExtra(EXIT_NODE);
+
+      String exitNode = null;
+      if (intent != null) {
+        exitNode = intent.getStringExtra(EXIT_NODE);
+      }
 
       if (exitNode == null || exitNode.isEmpty()) {
         exitNode = DEFAULT_EXIT_NODE;
@@ -94,7 +100,10 @@ public class LokinetDaemon extends VpnService {
       Log.e(LOG_TAG, "Using " + exitNode + " as exit-node.");
       configVals.add(new ConfigValue("network", "exit-node", exitNode));
 
-      String upstreamDNS = intent.getStringExtra(UPSTREAM_DNS);
+      String upstreamDNS = null;
+      if (intent != null) {
+        upstreamDNS = intent.getStringExtra(UPSTREAM_DNS);
+      }
 
       if (upstreamDNS == null || upstreamDNS.isEmpty()) {
         upstreamDNS = DEFAULT_UPSTREAM_DNS;
@@ -117,7 +126,8 @@ public class LokinetDaemon extends VpnService {
 
   @Override
   public void onRevoke() {
-    mStatus.postValue(false);
+    Log.d(LOG_TAG, "onRevoke()");
+    disconnect();
     super.onRevoke();
   }
 
@@ -229,7 +239,7 @@ public class LokinetDaemon extends VpnService {
     } else {
       Log.d(LOG_TAG, "already running");
     }
-    updateStatus();
+    updateIsConnected();
     return true;
   }
 
@@ -241,15 +251,15 @@ public class LokinetDaemon extends VpnService {
     // Free(impl);
     // impl = null;
     // }
-    updateStatus();
+    updateIsConnected();
   }
 
-  public MutableLiveData<Boolean> getStatus() {
-    return mStatus;
+  public MutableLiveData<Boolean> isConnected() {
+    return isConnected;
   }
 
-  private void updateStatus() {
-    mStatus.postValue(IsRunning() && VpnService.prepare(LokinetDaemon.this) == null);
+  private void updateIsConnected() {
+    isConnected.postValue(IsRunning() && VpnService.prepare(LokinetDaemon.this) == null);
   }
 
   /**
@@ -264,14 +274,20 @@ public class LokinetDaemon extends VpnService {
 
   @Override
   public IBinder onBind(Intent intent) {
+    String action = intent != null ? intent.getAction() : "";
+
+    if (VpnService.SERVICE_INTERFACE.equals(action)) {
+      return super.onBind(intent);
+    }
+
     return mBinder;
   }
 
   private final IBinder mBinder = new LocalBinder();
 
-  private class CheckStatus extends TimerTask {
+  private class UpdateIsConnectedTask extends TimerTask {
     public void run() {
-      updateStatus();
+      updateIsConnected();
     }
   }
 }

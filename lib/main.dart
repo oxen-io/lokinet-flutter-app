@@ -87,28 +87,26 @@ class MyForm extends StatefulWidget {
 
 class MyFormState extends State<MyForm> {
   static final key = new GlobalKey<FormState>();
-  bool isConnected = false;
+  StreamSubscription<bool> _isConnectedEventSubscription;
 
   @override
   initState() {
     super.initState();
-    LokinetLib.onStatusUpdate((bool status) => setState(() {
-          isConnected = status;
-        }));
+    _isConnectedEventSubscription = LokinetLib.isConnectedEventStream
+        .listen((bool isConnected) => setState(() {}));
   }
 
-  Future _updateLokinetStatus() async {
-    var _isConnected = await LokinetLib.isRunning;
-    setState(() {
-      isConnected = _isConnected;
-    });
+  @override
+  void dispose() {
+    super.dispose();
+    _isConnectedEventSubscription?.cancel();
   }
 
   Future toggleLokinet() async {
     if (!key.currentState.validate()) {
       return;
     }
-    if (await LokinetLib.isRunning) {
+    if (LokinetLib.isConnected) {
       await LokinetLib.disconnectFromLokinet();
     } else {
       //Save the exit node and upstream dns
@@ -187,7 +185,7 @@ class MyFormState extends State<MyForm> {
           Padding(
             padding: EdgeInsets.all(20),
             child: Text(
-              isConnected ? "Connected" : "Not Connected",
+              LokinetLib.isConnected ? "Connected" : "Not Connected",
               style: TextStyle(color: color),
             ),
           ),
