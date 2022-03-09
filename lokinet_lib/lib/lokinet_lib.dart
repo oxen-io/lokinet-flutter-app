@@ -9,19 +9,19 @@ class LokinetLib {
   static const MethodChannel _methodChannel =
       const MethodChannel('lokinet_lib_method_channel');
 
-  static const EventChannel _statusEventChannel =
-      const EventChannel('lokinet_lib_status_event_channel');
+  static const EventChannel _isConnectedEventChannel =
+      const EventChannel('lokinet_lib_is_connected_event_channel');
 
-  static bool _status = false;
+  static bool _isConnected = false;
 
-  static bool get status => _status;
+  static bool get isConnected => _isConnected;
 
-  static Stream<bool> _statusEventStream = _statusEventChannel
+  static Stream<bool> _isConnectedEventStream = _isConnectedEventChannel
       .receiveBroadcastStream()
       .cast<bool>()
-    ..listen((dynamic newStatus) => _status = newStatus);
+    ..listen((dynamic newIsConnected) => _isConnected = newIsConnected);
 
-  static Stream<bool> get statusEventStream => _statusEventStream;
+  static Stream<bool> get isConnectedEventStream => _isConnectedEventStream;
 
   static Future bootstrapLokinet() async {
     final request = await HttpClient()
@@ -72,7 +72,7 @@ class LokinetLib {
   }
 
   static Future<dynamic> get info async {
-    var status = await _methodChannel.invokeMethod('getInfo') as String;
+    var status = await _methodChannel.invokeMethod('getStatus') as String;
     if (status.isNotEmpty) return jsonDecode(status);
     return null;
   }

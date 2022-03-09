@@ -53,22 +53,22 @@ public class LokinetDaemon extends VpnService {
   int m_FD = -1;
   int m_UDPSocket = -1;
 
-  private Timer mStatusCheckTimer;
-  private MutableLiveData<Boolean> mStatus = new MutableLiveData<Boolean>();
+  private Timer mUpdateIsConnectedTimer;
+  private MutableLiveData<Boolean> isConnected = new MutableLiveData<Boolean>();
 
   @Override
   public void onCreate() {
-    mStatus.postValue(false);
-    mStatusCheckTimer = new Timer();
-    mStatusCheckTimer.schedule(new CheckStatus(), 0, 500);
+    isConnected.postValue(false);
+    mUpdateIsConnectedTimer = new Timer();
+    mUpdateIsConnectedTimer.schedule(new UpdateIsConnectedTask(), 0, 500);
     super.onCreate();
   }
 
   @Override
   public void onDestroy() {
-    if (mStatusCheckTimer != null) {
-      mStatusCheckTimer.cancel();
-      mStatusCheckTimer = null;
+    if (mUpdateIsConnectedTimer != null) {
+      mUpdateIsConnectedTimer.cancel();
+      mUpdateIsConnectedTimer = null;
     }
 
     super.onDestroy();
@@ -117,7 +117,7 @@ public class LokinetDaemon extends VpnService {
 
   @Override
   public void onRevoke() {
-    mStatus.postValue(false);
+    isConnected.postValue(false);
     super.onRevoke();
   }
 
@@ -229,7 +229,7 @@ public class LokinetDaemon extends VpnService {
     } else {
       Log.d(LOG_TAG, "already running");
     }
-    updateStatus();
+    updateIsConnected();
     return true;
   }
 
@@ -241,15 +241,15 @@ public class LokinetDaemon extends VpnService {
     // Free(impl);
     // impl = null;
     // }
-    updateStatus();
+    updateIsConnected();
   }
 
-  public MutableLiveData<Boolean> getStatus() {
-    return mStatus;
+  public MutableLiveData<Boolean> isConnected() {
+    return isConnected;
   }
 
-  private void updateStatus() {
-    mStatus.postValue(IsRunning() && VpnService.prepare(LokinetDaemon.this) == null);
+  private void updateIsConnected() {
+    isConnected.postValue(IsRunning() && VpnService.prepare(LokinetDaemon.this) == null);
   }
 
   /**
@@ -269,9 +269,9 @@ public class LokinetDaemon extends VpnService {
 
   private final IBinder mBinder = new LocalBinder();
 
-  private class CheckStatus extends TimerTask {
+  private class UpdateIsConnectedTask extends TimerTask {
     public void run() {
-      updateStatus();
+      updateIsConnected();
     }
   }
 }

@@ -35,13 +35,13 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
     /// when the Flutter Engine is detached from the Activity
     private lateinit var mMethodChannel: MethodChannel
-    private lateinit var mStatusEventChannel: EventChannel
+    private lateinit var mIsConnectedEventChannel: EventChannel
     private var mEventSink: EventChannel.EventSink? = null
 
-    private var mStatusObserver =
-            Observer<Boolean> { newStatus ->
+    private var mIsConnectedObserver =
+            Observer<Boolean> { newIsConnected ->
                 // Propagate to the dart package.
-                mEventSink?.success(newStatus)
+                mEventSink?.success(newIsConnected)
             }
 
     private var mLifecycleOwner =
@@ -57,9 +57,9 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         mMethodChannel = MethodChannel(binding.binaryMessenger, "lokinet_lib_method_channel")
         mMethodChannel.setMethodCallHandler(this)
 
-        mStatusEventChannel =
-                EventChannel(binding.binaryMessenger, "lokinet_lib_status_event_channel")
-        mStatusEventChannel.setStreamHandler(
+        mIsConnectedEventChannel =
+                EventChannel(binding.binaryMessenger, "lokinet_lib_is_connected_event_channel")
+        mIsConnectedEventChannel.setStreamHandler(
                 object : EventChannel.StreamHandler {
                     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
                         mEventSink = events
@@ -150,7 +150,7 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.success(false)
                 }
             }
-            "getInfo" -> {
+            "getStatus" -> {
                 if (mBoundService != null) {
                     result.success(mBoundService!!.DumpStatus())
                 } else {
@@ -178,7 +178,7 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 override fun onServiceConnected(className: ComponentName, service: IBinder) {
                     mBoundService = (service as LokinetDaemon.LocalBinder).getService()
 
-                    mBoundService?.getStatus()?.observe(mLifecycleOwner, mStatusObserver)
+                    mBoundService?.isConnected()?.observe(mLifecycleOwner, mIsConnectedObserver)
                 }
 
                 override fun onServiceDisconnected(className: ComponentName) {
