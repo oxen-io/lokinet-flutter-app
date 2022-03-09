@@ -79,12 +79,18 @@ public class LokinetDaemon extends VpnService {
   public int onStartCommand(Intent intent, int flags, int startID) {
     Log.d(LOG_TAG, "onStartCommand()");
 
-    if (intent.getAction().equals(ACTION_DISCONNECT)) {
+    String action = intent != null ? intent.getAction() : "";
+
+    if (ACTION_DISCONNECT.equals(action)) {
       disconnect();
       return START_NOT_STICKY;
     } else {
       ArrayList<ConfigValue> configVals = new ArrayList<ConfigValue>();
-      String exitNode = intent.getStringExtra(EXIT_NODE);
+
+      String exitNode = null;
+      if (intent != null) {
+        exitNode = intent.getStringExtra(EXIT_NODE);
+      }
 
       if (exitNode == null || exitNode.isEmpty()) {
         exitNode = DEFAULT_EXIT_NODE;
@@ -94,7 +100,10 @@ public class LokinetDaemon extends VpnService {
       Log.e(LOG_TAG, "Using " + exitNode + " as exit-node.");
       configVals.add(new ConfigValue("network", "exit-node", exitNode));
 
-      String upstreamDNS = intent.getStringExtra(UPSTREAM_DNS);
+      String upstreamDNS = null;
+      if (intent != null) {
+        upstreamDNS = intent.getStringExtra(UPSTREAM_DNS);
+      }
 
       if (upstreamDNS == null || upstreamDNS.isEmpty()) {
         upstreamDNS = DEFAULT_UPSTREAM_DNS;
@@ -117,7 +126,8 @@ public class LokinetDaemon extends VpnService {
 
   @Override
   public void onRevoke() {
-    isConnected.postValue(false);
+    Log.d(LOG_TAG, "onRevoke()");
+    disconnect();
     super.onRevoke();
   }
 
@@ -264,6 +274,12 @@ public class LokinetDaemon extends VpnService {
 
   @Override
   public IBinder onBind(Intent intent) {
+    String action = intent != null ? intent.getAction() : "";
+
+    if (VpnService.SERVICE_INTERFACE.equals(action)) {
+      return super.onBind(intent);
+    }
+
     return mBinder;
   }
 

@@ -163,12 +163,14 @@ class LokinetLibPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activityBinding = binding
+        doBindService()
     }
 
     override fun onDetachedFromActivity() {}
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
         activityBinding = binding
+        doBindService()
     }
 
     override fun onDetachedFromActivityForConfigChanges() {}
