@@ -71,7 +71,7 @@ class LokinetLib {
     return File('${path.parent.path}/files/bootstrap.signed').existsSync();
   }
 
-  static Future<dynamic> get info async {
+  static Future<dynamic> get status async {
     var status = await _methodChannel.invokeMethod('getStatus') as String;
     if (status.isNotEmpty) return jsonDecode(status);
     return null;
