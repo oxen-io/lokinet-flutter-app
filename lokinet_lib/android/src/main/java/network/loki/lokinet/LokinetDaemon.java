@@ -1,6 +1,8 @@
 package network.loki.lokinet;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.net.VpnService;
 import android.os.Binder;
 import android.os.IBinder;
@@ -88,8 +90,22 @@ public class LokinetDaemon extends VpnService {
       ArrayList<ConfigValue> configVals = new ArrayList<ConfigValue>();
 
       String exitNode = null;
-      if (intent != null) {
+      String upstreamDNS = null;
+
+      SharedPreferences sharedPreferences = getSharedPreferences("lokinet_lib", MODE_PRIVATE);
+
+      if (ACTION_CONNECT.equals(action)) { // started by the app
         exitNode = intent.getStringExtra(EXIT_NODE);
+        upstreamDNS = intent.getStringExtra(UPSTREAM_DNS);
+        // save values
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(EXIT_NODE, exitNode);
+        editor.putString(UPSTREAM_DNS, upstreamDNS);
+        editor.commit();
+      } else { // if started by the system because Always-on VPN setting is enabled
+        // use the latest values
+        exitNode = sharedPreferences.getString(EXIT_NODE, null);
+        upstreamDNS = sharedPreferences.getString(UPSTREAM_DNS, null);
       }
 
       if (exitNode == null || exitNode.isEmpty()) {
@@ -99,11 +115,6 @@ public class LokinetDaemon extends VpnService {
 
       Log.e(LOG_TAG, "Using " + exitNode + " as exit-node.");
       configVals.add(new ConfigValue("network", "exit-node", exitNode));
-
-      String upstreamDNS = null;
-      if (intent != null) {
-        upstreamDNS = intent.getStringExtra(UPSTREAM_DNS);
-      }
 
       if (upstreamDNS == null || upstreamDNS.isEmpty()) {
         upstreamDNS = DEFAULT_UPSTREAM_DNS;
