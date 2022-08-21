@@ -17,14 +17,6 @@ build requirements:
 * git
 * autotools
 
-install flutter with snap:
-
-    $ sudo snap install flutter --classic
-
-or with [asdf](https://github.com/asdf-vm/asdf):
-
-    $ asdf install
-
 a one liner to install everything else:
 
     $ sudo apt install make automake libtool pkg-config cmake git
@@ -35,10 +27,15 @@ before building make sure to update the submodules:
 
     $ git submodule update --init --recursive
 
+
+install flutter with [asdf](https://github.com/asdf-vm/asdf):
+
+    $ asdf install
+
 to build the project with flutter:
 
     $ flutter build apk --debug
-    
+
 if succesful it will produce an apk at `build/app/outputs/flutter-apk/app-debug.apk` which you can run
 
 ## cleaning
