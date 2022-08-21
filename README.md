@@ -21,12 +21,13 @@ a one liner to install everything else:
 
     $ sudo apt install make automake libtool pkg-config cmake git
 
-### build with flutter
+### git submodules
 
 before building make sure to update the submodules:
 
     $ git submodule update --init --recursive
 
+### flutter
 
 install flutter with [asdf](https://github.com/asdf-vm/asdf):
 
