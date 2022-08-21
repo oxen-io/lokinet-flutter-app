@@ -9,6 +9,7 @@ An app to interact with Lokinet as a vpn tunnel for android
 
 build requirements:
 
+* posix compliant build environment
 * flutter
 * gnu make
 * cmake
