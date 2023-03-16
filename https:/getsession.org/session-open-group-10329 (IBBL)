@@ -1,0 +1,4 @@
+com.google.firebase.components.ComponentDiscoveryService
+com.google.mlkit.common.internal.MlKitComponentDiscoveryService
+com.google.android.datatransport.runtime.backends.TransportBackendDiscovery
+com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService
