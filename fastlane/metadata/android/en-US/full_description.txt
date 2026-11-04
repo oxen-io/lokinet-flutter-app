@@ -1,0 +1,9 @@
+Lokinet is a free and open source onion routing network. This app provides a VPN interface that routes your device's traffic through Lokinet on Android.
+
+Features:
+* Start and stop Lokinet with a single tap
+* Optional exit node for reaching the regular internet (clearnet) through Lokinet
+* Configurable upstream DNS
+
+Source code: https://github.com/oxen-io/lokinet-flutter-app
+License: GPL-3.0
