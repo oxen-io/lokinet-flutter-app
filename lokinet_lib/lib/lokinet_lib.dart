@@ -2,21 +2,22 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
 class LokinetLib {
   static const MethodChannel _methodChannel =
-      const MethodChannel('lokinet_lib_method_channel');
+      MethodChannel('lokinet_lib_method_channel');
 
   static const EventChannel _isConnectedEventChannel =
-      const EventChannel('lokinet_lib_is_connected_event_channel');
+      EventChannel('lokinet_lib_is_connected_event_channel');
 
   static bool _isConnected = false;
 
   static bool get isConnected => _isConnected;
 
-  static Stream<bool> _isConnectedEventStream = _isConnectedEventChannel
+  static final Stream<bool> _isConnectedEventStream = _isConnectedEventChannel
       .receiveBroadcastStream()
       .cast<bool>()
     ..listen((dynamic newIsConnected) => _isConnected = newIsConnected);
@@ -31,10 +32,10 @@ class LokinetLib {
     await response
         .pipe(File('${path.parent.path}/files/bootstrap.signed').openWrite());
     if (await isBootstrapped) {
-      print("Successfully bootstrapped!");
+      debugPrint("Successfully bootstrapped!");
     } else {
-      print("Bootstrapping went wrong!");
-      print(Directory('${path.parent.path}/files/').listSync().toString());
+      debugPrint("Bootstrapping went wrong!");
+      debugPrint(Directory('${path.parent.path}/files/').listSync().toString());
     }
   }
 
