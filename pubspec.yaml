@@ -26,14 +26,12 @@ dependencies:
   lokinet_lib:
     path: ./lokinet_lib
   shared_preferences: ^0.5.12+4
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.0
+  path_provider: ^1.6.28
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^2.0.1
   flutter_launcher_icons: ^0.12.0
 
 #flutter pub run flutter_launcher_icons:main

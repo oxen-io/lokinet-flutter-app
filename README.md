@@ -37,7 +37,19 @@ to build the project with flutter:
 
     $ flutter build apk --debug
 
-if succesful it will produce an apk at `build/app/outputs/flutter-apk/app-debug.apk` which you can run
+if successful it will produce an apk at `build/app/outputs/flutter-apk/app-debug.apk` which you can run
+
+## linting and testing
+
+to check the code and run the tests:
+
+    $ flutter analyze
+    $ dart format lib test
+    $ flutter test
+
+`contrib/format.sh` runs the formatter and the linter for the app and for
+`lokinet_lib` (the gradle step additionally requires a local java
+installation).
 
 ## cleaning
 
