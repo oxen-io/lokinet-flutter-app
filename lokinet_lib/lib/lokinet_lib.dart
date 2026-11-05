@@ -24,18 +24,26 @@ class LokinetLib {
 
   static Stream<bool> get isConnectedEventStream => _isConnectedEventStream;
 
-  static Future bootstrapLokinet() async {
-    final request = await HttpClient()
-        .getUrl(Uri.parse('https://seed.lokinet.org/lokinet.signed'));
-    final response = await request.close();
-    var path = await getApplicationDocumentsDirectory();
-    await response
-        .pipe(File('${path.parent.path}/files/bootstrap.signed').openWrite());
-    if (await isBootstrapped) {
-      debugPrint("Successfully bootstrapped!");
-    } else {
-      debugPrint("Bootstrapping went wrong!");
-      debugPrint(Directory('${path.parent.path}/files/').listSync().toString());
+  static Future<void> bootstrapLokinet() async {
+    final HttpClient client = HttpClient();
+    try {
+      final request = await client
+          .getUrl(Uri.parse('https://seed.lokinet.org/lokinet.signed'))
+          .timeout(const Duration(seconds: 20));
+      final response =
+          await request.close().timeout(const Duration(seconds: 60));
+      var path = await getApplicationDocumentsDirectory();
+      await response
+          .pipe(File('${path.parent.path}/files/bootstrap.signed').openWrite());
+      if (await isBootstrapped) {
+        debugPrint("Successfully bootstrapped!");
+      } else {
+        debugPrint("Bootstrapping went wrong!");
+        debugPrint(
+            Directory('${path.parent.path}/files/').listSync().toString());
+      }
+    } finally {
+      client.close(force: true);
     }
   }
 
@@ -73,8 +81,8 @@ class LokinetLib {
   }
 
   static Future<dynamic> get status async {
-    var status = await _methodChannel.invokeMethod('getStatus') as String;
-    if (status.isNotEmpty) return jsonDecode(status);
+    final dynamic status = await _methodChannel.invokeMethod('getStatus');
+    if (status is String && status.isNotEmpty) return jsonDecode(status);
     return null;
   }
 }

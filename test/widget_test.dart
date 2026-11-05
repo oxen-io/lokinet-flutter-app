@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lokinet_mobile/main.dart';
 import 'package:lokinet_mobile/src/settings.dart';
@@ -96,5 +97,28 @@ void main() {
     expect(preferences.getString('upstream-dns'), '1.1.1.1');
     expect(settings.exitNode, 'somewhere.loki');
     expect(settings.upstreamDNS, '1.1.1.1');
+  });
+
+  testWidgets('status page shows connection info and router status',
+      (WidgetTester tester) async {
+    const MethodChannel pathProviderChannel =
+        MethodChannel('plugins.flutter.io/path_provider');
+    TestWidgetsFlutterBinding.ensureInitialized();
+    tester.binding.defaultBinaryMessenger
+        .setMockMethodCallHandler(pathProviderChannel, (MethodCall call) async {
+      return '/tmp/opencode/fake-docs';
+    });
+
+    await tester.pumpWidget(const LokinetApp());
+    await tester.tap(find.byIcon(Icons.info_outline));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Status'), findsOneWidget);
+    expect(find.text('Not connected'), findsOneWidget);
+    expect(find.text('exit.loki'), findsOneWidget);
+    expect(find.text('9.9.9.9'), findsOneWidget);
+    expect(find.text('Data directory'), findsOneWidget);
+    expect(find.text('Router status'), findsOneWidget);
+    expect(find.text('Unavailable (router not running).'), findsOneWidget);
   });
 }

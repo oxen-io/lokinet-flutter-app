@@ -26,6 +26,7 @@ dependencies:
   lokinet_lib:
     path: ./lokinet_lib
   shared_preferences: ^0.5.12+4
+  path_provider: ^1.6.28
 
 dev_dependencies:
   flutter_test:

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lokinet_lib/lokinet_lib.dart';
 import 'package:lokinet_mobile/src/settings.dart';
+import 'package:lokinet_mobile/src/status_page.dart';
 import 'package:lokinet_mobile/src/utils/is_darkmode.dart';
 import 'package:lokinet_mobile/src/widget/lokinet_divider.dart';
 import 'package:lokinet_mobile/src/widget/lokinet_power_button.dart';
@@ -59,22 +60,40 @@ class LokinetHomePage extends StatelessWidget {
       body: Container(
         color: darkModeOn ? Colors.black : Colors.white,
         child: SafeArea(
-          child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) =>
-                SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const <Widget>[
-                      ThemedLokinetLogo(),
-                      MyForm(),
-                    ],
+          child: Stack(
+            children: <Widget>[
+              LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) =>
+                    SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints:
+                        BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const <Widget>[
+                          ThemedLokinetLogo(),
+                          MyForm(),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+              Positioned(
+                top: 4,
+                right: 4,
+                child: IconButton(
+                  icon: const Icon(Icons.info_outline),
+                  tooltip: 'Connection status',
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                        builder: (BuildContext context) =>
+                            const LokinetStatusPage()),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -147,6 +166,8 @@ class MyFormState extends State<MyForm> {
               const SnackBar(content: Text('Could not connect to Lokinet.')));
         }
       }
+    } catch (error) {
+      messenger.showSnackBar(SnackBar(content: Text('Lokinet error: $error')));
     } finally {
       if (mounted) {
         setState(() => _isBusy = false);

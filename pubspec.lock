@@ -216,7 +216,7 @@ packages:
     source: hosted
     version: "1.8.2"
   path_provider:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path_provider
       sha256: "90ea926097957ffbcb5381fdd7de76f6d5326fcd4689f07d8d4ee42b4040fa85"
