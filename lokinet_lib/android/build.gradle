@@ -59,6 +59,7 @@ android {
 	}
 	defaultConfig {
 		minSdkVersion 16
+		consumerProguardFiles "consumer-rules.pro"
 	}
 	lintOptions {
 		disable "InvalidPackage"
@@ -90,9 +91,15 @@ task compileNativeLibs(type: Exec) {
 
 task ensureNativeLibs(type: Copy) {
 	from("$projectDir/../external/lokinet/build-android") {
+		// lokinet >= 0.9.8 builds into build-android/build-<abi>/jni/
+		include 'build-*/jni/*.so'
+		// older lokinet versions put the libs into build-android/out/<abi>/
 		include 'out/*/*.so'
 		eachFile { fcd ->
-			fcd.relativePath = new RelativePath(true, fcd.relativePath.segments.drop(1))
+			def segments = fcd.relativePath.segments
+			def top = segments[0]
+			def abi = top.startsWith('build-') ? top.substring('build-'.length()) : segments[1]
+			fcd.relativePath = new RelativePath(true, abi, segments.last())
 		}
 	}
 	into "$projectDir/src/main/jniLibs/"
