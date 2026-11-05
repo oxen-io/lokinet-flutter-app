@@ -124,8 +124,13 @@ public class LokinetDaemon extends VpnService {
       Log.e(LOG_TAG, "Using " + upstreamDNS + " as upstream DNS.");
       configVals.add(new ConfigValue("dns", "upstream", upstreamDNS));
 
-      // set log leve to info
+      // set log level to info
       configVals.add(new ConfigValue("logging", "level", "info"));
+
+      // The app talks to the router via JNI, not via the local RPC server;
+      // the RPC server cannot start on Android because it requires a log
+      // ring buffer that only the apple wrapper sets up.
+      configVals.add(new ConfigValue("api", "enabled", "false"));
 
       boolean connectedSuccessfully = connect(configVals);
       if (connectedSuccessfully)
@@ -239,7 +244,11 @@ public class LokinetDaemon extends VpnService {
       InjectVPNFD();
       new Thread(
           () -> {
-            Configure(config);
+            if (!Configure(config)) {
+              Log.e(LOG_TAG, "failed to configure lokinet daemon");
+              Stop();
+              return;
+            }
             m_UDPSocket = GetUDPSocket();
             protect(m_UDPSocket);
             Mainloop();

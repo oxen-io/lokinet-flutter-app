@@ -51,7 +51,7 @@ spotless {
 android {
 	compileSdkVersion 31
 
-	ndkVersion '21.3.6528147'
+	ndkVersion '27.2.12479018'
 	sourceSets {
 		main.java.srcDirs += "src/main/java"
 		main.java.srcDirs += "src/main/kotlin"
@@ -90,15 +90,26 @@ task compileNativeLibs(type: Exec) {
 }
 
 task ensureNativeLibs(type: Copy) {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	from("$projectDir/../external/lokinet/build-android") {
-		// lokinet >= 0.9.8 builds into build-android/build-<abi>/jni/
-		include 'build-*/jni/*.so'
-		// older lokinet versions put the libs into build-android/out/<abi>/
+		// lokinet >= 0.9.9 puts the finished libs into build-android/out/<abi>/
 		include 'out/*/*.so'
+		// fallback for older layouts: the raw cmake output and the
+		// pre-0.9.9 lokinet-jni-* directories
+		include 'build-*/jni/*.so'
+		include 'lokinet-jni-*/*/*.so'
 		eachFile { fcd ->
 			def segments = fcd.relativePath.segments
 			def top = segments[0]
-			def abi = top.startsWith('build-') ? top.substring('build-'.length()) : segments[1]
+			def abi
+			if (top.startsWith('build-')) {
+				abi = top.substring('build-'.length())
+			} else if (top == 'out') {
+				abi = segments[1]
+			} else {
+				// lokinet-jni-<tag>/<abi>/<file>
+				abi = segments[1]
+			}
 			fcd.relativePath = new RelativePath(true, abi, segments.last())
 		}
 	}
