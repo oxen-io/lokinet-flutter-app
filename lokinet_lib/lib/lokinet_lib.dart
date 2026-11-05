@@ -48,7 +48,16 @@ class LokinetLib {
   }
 
   static Future<bool> prepareConnection() async {
-    if (!(await isBootstrapped)) await bootstrapLokinet();
+    if (!(await isBootstrapped)) {
+      try {
+        await bootstrapLokinet();
+      } catch (exception) {
+        // The router has compiled-in fallback bootstrap routers, so a failed
+        // download (e.g. a censored network) must not stop the connection
+        // attempt.
+        debugPrint("bootstrap download failed: $exception");
+      }
+    }
     final bool prepare = await _methodChannel.invokeMethod('prepare');
     return prepare;
   }
